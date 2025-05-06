@@ -1,103 +1,120 @@
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0
+/* ===== THEME ===== */
+:root {
+    --brand: #00a37a;
+    --brand-dark: #008a66;
+    --bg-light: #f4f8f6;
+    --text: #222;
+    --text-light: #fff;
 }
 
 body {
-    font-family: system-ui, sans-serif;
-    background: #f1f6f4;
-    color: #222
+    font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+    background: var(--bg-light);
+    color: var(--text)
 }
 
-header {
-    padding: 1rem;
-    text-align: center;
-    background: linear-gradient(90deg, #00d084, #00a37a);
-    color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, .1)
-}
-
-main {
-    padding: 1rem;
-    margin-bottom: 4.3rem
-}
-
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+/* ===== NAVBAR ===== */
+.top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
     display: flex;
-    height: 4.3rem;
-    background: #fff;
-    border-top: 1px solid #ccc;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, .06)
+    align-items: center;
+    gap: 1rem;
+    padding: .65rem 1rem;
+    background: linear-gradient(90deg, var(--brand), var(--brand-dark));
+    color: var(--text-light);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .08)
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    white-space: nowrap
+}
+
+/* Tabs container scrolls if it overflows */
+.tabs {
+    display: flex;
+    gap: .3rem;
+    overflow-x: auto;
+    flex: 1
 }
 
 .tab {
-    flex: 1;
-    border: none;
-    background: none;
-    font-size: .75rem;
-    color: #666;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: .15rem
+    gap: .15rem;
+    min-width: 4.2rem;
+    /* keeps nice width even when scrolled */
+    padding: .45rem .6rem;
+    border: none;
+    background: none;
+    color: #e8fff9;
+    font-size: .7rem;
+    border-radius: .55rem;
+    cursor: pointer;
+    transition: background .18s, color .18s
 }
 
 .tab i {
-    font-size: 1.15rem
+    font-size: 1.05rem
 }
 
 .tab.active {
-    color: #00a37a;
+    background: rgba(255, 255, 255, .25);
+    color: #fff;
     font-weight: 600
 }
 
-form {
-    display: flex;
-    flex-direction: column;
-    gap: .85rem
+.tab:not(.active):hover {
+    background: rgba(255, 255, 255, .15)
 }
 
-input,
-textarea,
-button {
-    padding: .7rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: .55rem
+/* ===== GENERIC COMPONENTS ===== */
+main {
+    padding: 1.2rem 1rem 2rem
 }
 
-button {
-    background: #00a37a;
+.card {
+    background: #fff;
+    border-radius: .85rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, .05)
+}
+
+button:not(.tab) {
+    background: var(--brand);
     color: #fff;
     border: none;
+    border-radius: .55rem;
+    padding: .75rem 1rem;
+    font-size: 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .12);
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
-    transition: transform .15s
+    transition: transform .15s, box-shadow .15s
 }
 
-button:active {
-    transform: scale(.97)
+button:not(.tab):active {
+    transform: scale(.97);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .16)
 }
 
 button:disabled {
     opacity: .6
 }
 
-.card {
-    background: #fff;
-    margin-bottom: 1rem;
-    padding: 1rem;
-    border-radius: .8rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .07)
-}
-
-.streak {
-    font-weight: 700;
-    color: #00a37a
+input,
+textarea {
+    width: 100%;
+    padding: .7rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: .55rem;
+    font-size: 1rem;
+    background: #fff
 }

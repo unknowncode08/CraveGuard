@@ -10,33 +10,45 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
-    <div id="app">
-        <header>
-            <h1 id="title">Check‑In</h1>
-        </header>
-        <main id="view"></main>
+    <nav class="top-nav">
+        <span class="brand">
+            <i class="fa-solid fa-seedling"></i> CraveGuard
+        </span>
 
-        <nav class="bottom-nav">
-            <button data-screen="checkin" class="tab active">
-                <i class="fa-solid fa-circle-question"></i><span>Check‑In</span>
+        <div class="tabs">
+            <button class="tab active" data-screen="checkin">
+                <i class="fa-solid fa-circle-question"></i>
+                <span>Check‑In</span>
             </button>
-            <button data-screen="logger" class="tab">
-                <i class="fa-solid fa-clipboard-list"></i><span>Log</span>
+            <button class="tab" data-screen="logger">
+                <i class="fa-solid fa-clipboard-list"></i>
+                <span>Log</span>
             </button>
-            <button data-screen="locker" class="tab">
-                <i class="fa-solid fa-lock"></i><span>Locker</span>
+            <button class="tab" data-screen="locker">
+                <i class="fa-solid fa-lock"></i>
+                <span>Locker</span>
             </button>
-            <button data-screen="progress" class="tab">
-                <i class="fa-solid fa-chart-line"></i><span>Progress</span>
+            <button class="tab" data-screen="progress">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Progress</span>
             </button>
-            <button data-screen="plan" class="tab">
-                <i class="fa-solid fa-lightbulb"></i><span>Plan</span>
+            <button class="tab" data-screen="plan">
+                <i class="fa-solid fa-lightbulb"></i>
+                <span>Plan</span>
             </button>
-        </nav>
-    </div>
+
+            <!-- iOS “Add to Home Screen” tip could sit here if you like -->
+        </div>
+    </nav>
+
+    <main id="view"></main>
+
+
+    <main id="view"></main>
 
     <script src="script.js"></script>
     <script>
