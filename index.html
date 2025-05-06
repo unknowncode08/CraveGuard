@@ -1,1 +1,28 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>CraveGuard</title><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script><script>if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('service-worker.js');});}</script></head><body><div id="app"><header><h1 id="screen-title">Check‑In</h1></header><main id="screen-container"></main><nav class="bottom-nav"><button data-screen="checkin" class="nav-btn active">Check‑In</button><button data-screen="logger" class="nav-btn">Log</button><button data-screen="locker" class="nav-btn">Locker</button><button data-screen="progress" class="nav-btn">Progress</button><button data-screen="plan" class="nav-btn">Plan</button></nav></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CraveGuard</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('service-worker.js'); }); }</script>
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <h1 id="screen-title">Check‑In</h1>
+        </header>
+        <main id="screen-container"></main>
+        <nav class="bottom-nav"><button data-screen="checkin" class="nav-btn active">Check‑In</button><button
+                data-screen="logger" class="nav-btn">Log</button><button data-screen="locker"
+                class="nav-btn">Locker</button><button data-screen="progress" class="nav-btn">Progress</button><button
+                data-screen="plan" class="nav-btn">Plan</button></nav>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
