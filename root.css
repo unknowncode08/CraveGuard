@@ -1,0 +1,77 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0
+}
+
+body {
+    font-family: system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #fdfdfd;
+    color: #222
+}
+
+header {
+    padding: 2rem 1rem;
+    text-align: center;
+    background: linear-gradient(135deg, #00d084, #00a37a);
+    color: #fff
+}
+
+header h1 {
+    font-size: 2.2rem;
+    margin-bottom: .4rem
+}
+
+main {
+    flex: 1;
+    padding: 2rem 1rem;
+    text-align: center
+}
+
+.hero {
+    width: 60%;
+    max-width: 280px;
+    border-radius: 1rem;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, .1)
+}
+
+button.primary {
+    margin-top: 2rem;
+    padding: 1rem 2.5rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: .55rem;
+    background: #00a37a;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, .15);
+    transition: transform .15s
+}
+
+button.primary:active {
+    transform: scale(.97)
+}
+
+.tip {
+    margin-top: 1rem;
+    font-size: .9rem;
+    color: #555
+}
+
+.share {
+    font-weight: 600
+}
+
+footer {
+    padding: 1rem;
+    text-align: center;
+    font-size: .9rem
+}
+
+footer a {
+    color: #00a37a;
+    text-decoration: none
+}
