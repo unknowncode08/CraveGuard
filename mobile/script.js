@@ -34,6 +34,28 @@ screens.checkin = () => {
       <button>Submit</button>
       <div id="result" class="card" style="display:none"></div>
     </form>`;
+    /* inside screens.checkin() – after you render #result */
+
+    result.insertAdjacentHTML("beforeend",
+        `<button id="tipBtn" class="secondary">Ask Gemini for a tip 🤖</button>`);
+
+    document.getElementById("tipBtn").onclick = async () => {
+        tipBtn.disabled = true;
+        tipBtn.textContent = "Thinking…";
+        try {
+            const tip = await askGemini(
+                `Give a single practical tip (max 2 sentences) to help
+         someone resist eating ${item}. Keep it friendly and actionable.`
+            );
+            result.insertAdjacentHTML(
+                "beforeend",
+                `<p class="card" style="margin-top:.7rem"><em>${tip}</em></p>`
+            );
+        } catch (err) {
+            alert("Gemini error, try again later.");
+        }
+        tipBtn.remove();
+    };
     $('#checkForm').onsubmit = e => {
         e.preventDefault();
         const item = $('#foodInput').value.trim().toLowerCase();

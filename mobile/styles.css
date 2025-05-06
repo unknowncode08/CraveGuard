@@ -118,3 +118,16 @@ textarea {
     font-size: 1rem;
     background: #fff
 }
+
+button.secondary {
+    background: #fff;
+    color: var(--brand);
+    border: 2px solid var(--brand);
+    font-size: .9rem;
+    padding: .55rem .9rem;
+    margin-top: .6rem
+}
+
+button.secondary:active {
+    transform: scale(.97)
+}
