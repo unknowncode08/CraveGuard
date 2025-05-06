@@ -3,7 +3,7 @@ async function askGemini() {
     const output = document.getElementById("aiOutput");
     output.textContent = "Thinking...";
 
-    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyC1wlM7BygYivPTog2Qa7tzkmx-aijUPlY", {
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyC1wlM7BygYivPTog2Qa7tzkmx-aijUPlY", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
