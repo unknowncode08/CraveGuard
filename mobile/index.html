@@ -3,26 +3,47 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>CraveGuard</title>
+    <meta name="theme-color" content="#00a37a">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('service-worker.js'); }); }</script>
 </head>
 
 <body>
     <div id="app">
         <header>
-            <h1 id="screen-title">Check‑In</h1>
+            <h1 id="title">Check‑In</h1>
         </header>
-        <main id="screen-container"></main>
-        <nav class="bottom-nav"><button data-screen="checkin" class="nav-btn active">Check‑In</button><button
-                data-screen="logger" class="nav-btn">Log</button><button data-screen="locker"
-                class="nav-btn">Locker</button><button data-screen="progress" class="nav-btn">Progress</button><button
-                data-screen="plan" class="nav-btn">Plan</button></nav>
+        <main id="view"></main>
+
+        <nav class="bottom-nav">
+            <button data-screen="checkin" class="tab active">
+                <i class="fa-solid fa-circle-question"></i><span>Check‑In</span>
+            </button>
+            <button data-screen="logger" class="tab">
+                <i class="fa-solid fa-clipboard-list"></i><span>Log</span>
+            </button>
+            <button data-screen="locker" class="tab">
+                <i class="fa-solid fa-lock"></i><span>Locker</span>
+            </button>
+            <button data-screen="progress" class="tab">
+                <i class="fa-solid fa-chart-line"></i><span>Progress</span>
+            </button>
+            <button data-screen="plan" class="tab">
+                <i class="fa-solid fa-lightbulb"></i><span>Plan</span>
+            </button>
+        </nav>
     </div>
+
     <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js');
+        }
+    </script>
 </body>
 
 </html>
