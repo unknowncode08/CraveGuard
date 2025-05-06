@@ -10,6 +10,8 @@ const CAL = {
 };
 const JUNK = ['chips', 'cookies', 'chocolate', 'soda', 'ice cream', 'fries'];
 
+import { analyzeFoods } from './gemini.js';
+
 // ========== view system ==========
 const screens = {};
 const title = $('#title');
@@ -81,8 +83,16 @@ screens.logger = () => {
     const meals = load('meals', []);
     const total = meals.reduce((t, m) => t + m.cal, 0);
 
+    const macros = meals.reduce((o, m) => ({
+        p: o.p + m.protein, c: o.c + m.carbs, f: o.f + m.fat
+    }), { p: 0, c: 0, f: 0 });
+
     view.innerHTML = `
     <div class="card"><strong>Today:</strong> ${total} cal</div>
+    <div class="card">
+    <strong>Today:</strong> ${total} cal<br/>
+    P ${macros.p} g | C ${macros.c} g | F ${macros.f} g
+    </div>
     <form id="logForm">
       <label>Enter food(s)</label>
       <textarea id="logText" rows="2"
@@ -96,16 +106,45 @@ screens.logger = () => {
         meals.map(m => `<div class="card">${m.desc} (${m.cal} cal)</div>`).join('');
     render();
 
-    $('#logForm').onsubmit = e => {
+    mealList.insertAdjacentHTML('afterend',
+        `<button id="aiSuggest" class="secondary">What should I eat next? 🤖</button>`);
+
+    document.getElementById('aiSuggest').onclick = async () => {
+        aiSuggest.disabled = true; aiSuggest.textContent = "Thinking…";
+        const tip = await analyzeFoods(
+            `Based on what I've eaten so far today (${total} cal: P${macros.p} C${macros.c} F${macros.f}),
+           suggest one meal or snack to hit 40 % protein, 30 % carbs, 30 % fat.`
+        );
+        mealList.insertAdjacentHTML('beforeend',
+            `<p class="card" style="margin-top:.8rem"><em>${tip}</em></p>`);
+        aiSuggest.remove();
+    };
+
+    logForm.onsubmit = async e => {
         e.preventDefault();
-        const desc = $('#logText').value;
-        const cal = desc.split(/[,;]/).reduce((sum, x) => {
-            const parts = x.trim().split(' ');
-            const qty = parseFloat(parts[0]) || 1;
-            const item = parts.slice(1).join(' ');
-            return sum + qty * (CAL[item] ?? 100);
-        }, 0);
-        meals.push({ desc, cal: Math.round(cal) });
+        const desc = logText.value.trim();
+        if (!desc) return;
+
+        addBtn.disabled = true;          // UX feedback
+        addBtn.textContent = "Analyzing…";
+
+        let entry = { desc, calories: 0, protein: 0, carbs: 0, fat: 0 };
+
+        try {
+            const ai = await analyzeFoods(desc);
+            entry = {
+                desc,
+                calories: ai.calories ?? 0,
+                protein: ai.protein ?? 0,
+                carbs: ai.carbs ?? 0,
+                fat: ai.fat ?? 0
+            };
+        } catch (err) {
+            /* fallback: your old quick‑estimate function */
+            entry.calories = estimateCalories(desc);
+        }
+
+        meals.push(entry);
         store('meals', meals);
         screens.logger();
     };
