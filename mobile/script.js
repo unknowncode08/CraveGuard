@@ -1,16 +1,28 @@
-const buttons = document.querySelectorAll('.tab-btn');
-const tabs = document.querySelectorAll('.tab-content');
+document.addEventListener("DOMContentLoaded", () => {
+    const buttons = document.querySelectorAll('.tab-btn');
+    const tabs = document.querySelectorAll('.tab-content');
 
-buttons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        const tabName = btn.dataset.tab;
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            const selectedTab = button.getAttribute('data-tab');
 
-        // Show only the clicked tab
-        tabs.forEach(tab => tab.classList.add('hidden'));
-        document.getElementById(tabName).classList.remove('hidden');
+            // Hide all tabs
+            tabs.forEach(tab => {
+                tab.classList.add('hidden');
+            });
 
-        // Update button colors
-        buttons.forEach(b => b.classList.remove('text-blue-600'));
-        btn.classList.add('text-blue-600');
+            // Show selected tab
+            const activeTab = document.getElementById(selectedTab);
+            if (activeTab) {
+                activeTab.classList.remove('hidden');
+            }
+
+            // Update active tab color
+            buttons.forEach(btn => btn.classList.remove('text-blue-600'));
+            button.classList.add('text-blue-600');
+        });
     });
+
+    // Show the Home tab by default
+    document.querySelector('[data-tab="home"]').click();
 });
