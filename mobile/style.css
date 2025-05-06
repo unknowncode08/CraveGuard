@@ -42,3 +42,20 @@ textarea {
 button {
     margin-top: 1em;
 }
+
+/* Custom shadow and smooth fade-in for transitions */
+.tab-content {
+    animation: fadein 0.4s ease-in-out;
+}
+
+@keyframes fadein {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

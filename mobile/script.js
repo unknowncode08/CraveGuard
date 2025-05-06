@@ -1,9 +1,16 @@
-const tabs = document.querySelectorAll('.navbar button');
-const contents = document.querySelectorAll('.tab-content');
+const buttons = document.querySelectorAll('.tab-btn');
+const tabs = document.querySelectorAll('.tab-content');
 
-tabs.forEach(btn => {
+buttons.forEach(btn => {
     btn.addEventListener('click', () => {
-        contents.forEach(c => c.classList.add('hidden'));
-        document.getElementById(btn.dataset.tab).classList.remove('hidden');
+        const tabName = btn.dataset.tab;
+
+        // Show only the clicked tab
+        tabs.forEach(tab => tab.classList.add('hidden'));
+        document.getElementById(tabName).classList.remove('hidden');
+
+        // Update button colors
+        buttons.forEach(b => b.classList.remove('text-blue-600'));
+        btn.classList.add('text-blue-600');
     });
 });
