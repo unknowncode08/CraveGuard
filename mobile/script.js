@@ -77,12 +77,14 @@ function closeFoodModal() {
 async function getNutrition() {
     const desc = document.getElementById("foodSearch").value.trim();
     if (!desc) {
-        return document.getElementById("foodError").textContent = "Please enter a food description.";
+        document.getElementById("foodError").textContent = "Please enter a food description.";
+        return;
     }
 
-    document.getElementById("foodError").textContent = "Thinking...";
+    document.getElementById("foodError").textContent = "Estimating nutrition...";
+
     try {
-        const prompt = `Estimate calories, protein, carbs, and fat for: "${desc}". Respond with this format:
+        const prompt = `Estimate the nutritional content for: "${desc}". Provide the following information:
   
   Food: [name]
   Calories: [number]
@@ -90,7 +92,7 @@ async function getNutrition() {
   Carbs: [grams]
   Fat: [grams]`;
 
-        const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyC1wlM7BygYivPTog2Qa7tzkmx-aijUPlY", {
+        const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyC1wlM7BygYivPTog2Qa7tzkmx-aijUPlY", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -98,7 +100,7 @@ async function getNutrition() {
             })
         });
 
-        const data = await res.json();
+        const data = await response.json();
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
         const lines = text.split('\n');
 
@@ -111,9 +113,9 @@ async function getNutrition() {
         document.getElementById("foodFat").value = parseFloat(lines[4]?.split(':')[1]) || '';
 
         document.getElementById("foodError").textContent = "";
-    } catch (err) {
-        console.error(err);
-        document.getElementById("foodError").textContent = "Failed to get nutrition. Try again.";
+    } catch (error) {
+        console.error("Error estimating nutrition:", error);
+        document.getElementById("foodError").textContent = "Failed to estimate nutrition. Please try again.";
     }
 }
 
@@ -135,4 +137,42 @@ function saveFood() {
 
     renderMeals();
     closeFoodModal();
+}
+
+async function searchFood() {
+    const query = document.getElementById("foodSearch").value.trim();
+    const resultsContainer = document.getElementById("searchResults");
+    resultsContainer.innerHTML = "";
+
+    if (query.length < 3) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1`);
+        const data = await response.json();
+
+        if (data.products && data.products.length > 0) {
+            data.products.slice(0, 5).forEach(product => {
+                const item = document.createElement("div");
+                item.className = "p-2 border-b cursor-pointer hover:bg-gray-100";
+                item.textContent = product.product_name || "Unnamed Product";
+                item.onclick = () => {
+                    document.getElementById("foodName").value = product.product_name || "";
+                    document.getElementById("foodCalories").value = product.nutriments["energy-kcal_100g"] || "";
+                    document.getElementById("foodProtein").value = product.nutriments.proteins_100g || "";
+                    document.getElementById("foodCarbs").value = product.nutriments.carbohydrates_100g || "";
+                    document.getElementById("foodFat").value = product.nutriments.fat_100g || "";
+                    document.getElementById("nutritionFields").classList.remove("hidden");
+                    resultsContainer.innerHTML = "";
+                };
+                resultsContainer.appendChild(item);
+            });
+        } else {
+            resultsContainer.innerHTML = "<div class='p-2 text-gray-500'>No results found.</div>";
+        }
+    } catch (error) {
+        console.error("Error fetching food data:", error);
+        resultsContainer.innerHTML = "<div class='p-2 text-red-500'>Error fetching data.</div>";
+    }
 }
