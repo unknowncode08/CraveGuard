@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CraveGuard</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div id="app">
+        <nav class="navbar">
+            <button data-tab="home">🏠</button>
+            <button data-tab="track">📝</button>
+            <button data-tab="goals">🎯</button>
+            <button data-tab="ai">🤖</button>
+            <button data-tab="profile">👤</button>
+        </nav>
+
+        <div class="tab-content" id="home">Welcome to CraveGuard</div>
+        <div class="tab-content hidden" id="track">Track your meals here</div>
+        <div class="tab-content hidden" id="goals">Set and view your goals</div>
+        <div class="tab-content hidden" id="ai">
+            <textarea id="aiInput" placeholder="Ask CraveGuard anything..."></textarea>
+            <button onclick="askGemini()">Ask AI</button>
+            <div id="aiOutput"></div>
+        </div>
+        <div="tab-content hidden" id="profile">Your profile info</div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="ai.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Install CraveGuard</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            padding: 2em;
+        }
+
+        button {
+            font-size: 1.2em;
+            padding: 0.8em 1.5em;
+            margin-top: 2em;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Install CraveGuard</h1>
+    <p>Tap below to open CraveGuard and add it to your home screen!</p>
+    <button id="installBtn">Open App</button>
+
+    <script>
+        document.getElementById('installBtn').addEventListener('click', () => {
+            alert("On iOS: tap the Share icon → 'Add to Home Screen'.\nOn Android: tap the three dots → 'Add to Home Screen'.");
+            window.location.href = '/CraveGuard/mobile/';
+        });
+    </script>
+</body>
+
+</html>
