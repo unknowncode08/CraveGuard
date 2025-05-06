@@ -25,7 +25,7 @@
                     <!-- Meals will appear here -->
                 </div>
 
-                <button onclick="addFood()"
+                <button onclick="openFoodModal()"
                     class="mt-4 w-full bg-blue-600 text-white py-2 rounded-xl shadow hover:bg-blue-700 transition">
                     + Add Food
                 </button>
@@ -75,6 +75,39 @@
 
         <script src="script.js"></script>
         <script src="ai.js"></script>
+    </div>
+
+    <!-- Add Food Modal -->
+    <div id="foodModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white w-11/12 max-w-md p-6 rounded-2xl shadow-lg animate-slide-up space-y-4 relative">
+            <button onclick="closeFoodModal()" class="absolute top-2 right-3 text-gray-500 text-xl">&times;</button>
+            <h3 class="text-lg font-semibold">Add Food</h3>
+
+            <input id="foodSearch" type="text" class="w-full p-2 border rounded-lg"
+                placeholder="Search or describe food...">
+
+            <select id="mealSelect" class="w-full p-2 border rounded-lg">
+                <option value="Breakfast">Breakfast</option>
+                <option value="Lunch">Lunch</option>
+                <option value="Dinner">Dinner</option>
+                <option value="Snacks">Snacks</option>
+            </select>
+
+            <div id="nutritionFields" class="space-y-2 hidden">
+                <input id="foodName" type="text" class="w-full p-2 border rounded-lg" placeholder="Food Name">
+                <input id="foodCalories" type="number" class="w-full p-2 border rounded-lg" placeholder="Calories">
+                <input id="foodProtein" type="number" class="w-full p-2 border rounded-lg" placeholder="Protein (g)">
+                <input id="foodCarbs" type="number" class="w-full p-2 border rounded-lg" placeholder="Carbs (g)">
+                <input id="foodFat" type="number" class="w-full p-2 border rounded-lg" placeholder="Fat (g)">
+            </div>
+
+            <button onclick="getNutrition()"
+                class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Estimate with AI</button>
+            <button onclick="saveFood()" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">Add
+                Food</button>
+
+            <div id="foodError" class="text-sm text-red-500 mt-1"></div>
+        </div>
     </div>
 </body>
 
