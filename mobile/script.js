@@ -82,9 +82,11 @@ async function getNutrition() {
     }
 
     document.getElementById("foodError").textContent = "Estimating nutrition...";
+    document.getElementById("nutritionFields").classList.remove("hidden");
 
     try {
-        const prompt = `Estimate the nutritional content for: "${desc}". Provide the following information:
+        const prompt = `Estimate the nutritional content for: "${desc}". 
+  Please respond with:
   
   Food: [name]
   Calories: [number]
@@ -101,21 +103,31 @@ async function getNutrition() {
         });
 
         const data = await response.json();
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        const lines = text.split('\n');
+        const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const lines = raw.split('\n');
 
-        document.getElementById("nutritionFields").classList.remove("hidden");
+        const getValue = (label) => {
+            const line = lines.find(l => l.toLowerCase().includes(label));
+            return line ? line.split(':')[1]?.trim() : '';
+        };
 
-        document.getElementById("foodName").value = lines[0]?.split(':')[1]?.trim() || desc;
-        document.getElementById("foodCalories").value = parseInt(lines[1]?.split(':')[1]) || '';
-        document.getElementById("foodProtein").value = parseFloat(lines[2]?.split(':')[1]) || '';
-        document.getElementById("foodCarbs").value = parseFloat(lines[3]?.split(':')[1]) || '';
-        document.getElementById("foodFat").value = parseFloat(lines[4]?.split(':')[1]) || '';
+        const name = getValue("food");
+        const calories = getValue("calories");
+        const protein = getValue("protein");
+        const carbs = getValue("carbs");
+        const fat = getValue("fat");
+
+        // Only update if something was returned
+        document.getElementById("foodName").value = name || desc;
+        document.getElementById("foodCalories").value = parseInt(calories) || '';
+        document.getElementById("foodProtein").value = parseFloat(protein) || '';
+        document.getElementById("foodCarbs").value = parseFloat(carbs) || '';
+        document.getElementById("foodFat").value = parseFloat(fat) || '';
 
         document.getElementById("foodError").textContent = "";
     } catch (error) {
-        console.error("Error estimating nutrition:", error);
-        document.getElementById("foodError").textContent = "Failed to estimate nutrition. Please try again.";
+        console.error("AI Estimation Error:", error);
+        document.getElementById("foodError").textContent = "AI failed to estimate nutrition. Try again.";
     }
 }
 
@@ -175,4 +187,13 @@ async function searchFood() {
         console.error("Error fetching food data:", error);
         resultsContainer.innerHTML = "<div class='p-2 text-red-500'>Error fetching data.</div>";
     }
+}
+
+let debounceTimeout;
+
+function debounceSearchFood() {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+        searchFood();
+    }, 500); // 500ms delay after typing stops
 }
