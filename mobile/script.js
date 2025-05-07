@@ -100,7 +100,6 @@ async function signInWithEmail() {
     try {
         const userCred = await auth.signInWithEmailAndPassword(email, password);
         const doc = await db.collection("users").doc(userCred.user.uid).get();
-        console.log(doc.data() + " | " + userCred.user.displayName);
         enterApp(doc.data(), userCred.user.displayName || email.split("@")[0]);
     } catch (err) {
         alert(err.message);
@@ -120,7 +119,7 @@ async function signInWithGoogle() {
 
         const doc = await db.collection("users").doc(uid).get();
         if (doc.exists) {
-            enterApp(doc.data());
+            enterApp(doc.data(), result.user.displayName);
         } else {
             alert("Account found but no profile data. Please sign up again.");
             auth.signOut();
@@ -404,11 +403,11 @@ function updateCalorieProgress() {
 }
 
 const ringConfig = {
-    calories: { unit: "kcal", color: "#4ade80" },
-    protein: { unit: "g", color: "#3b82f6" },
-    carbs: { unit: "g", color: "#f59e0b" },
-    fat: { unit: "g", color: "#ef4444" },
-    fiber: { unit: "g", color: "#10b981" }
+    calories: { "unit": "kcal", "color": "#4ade80" },
+    protein: { "unit": "g", "color": "#3b82f6" },
+    carbs: { "unit": "g", "color": "#f59e0b" },
+    fat: { "unit": "g", "color": "#ef4444" },
+    fiber: { "unit": "g", "color": "#10b981" }
 };
 
 function updateRing(id, value, goal) {
