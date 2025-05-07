@@ -77,7 +77,8 @@
 
                 <div class="mb-4">
                     <label for="logDate" class="block mb-1 text-sm font-medium">View Food Log by Date</label>
-                    <input type="date" id="logDate" class="border rounded px-2 py-1"
+                    <input type="date" id="logDate" class="border rounded px-2 py-1" 
+                        onload="loadLogForDate(this.value)"
                         onchange="loadLogForDate(this.value)">
                 </div>
 
