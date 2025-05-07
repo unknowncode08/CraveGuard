@@ -19,26 +19,91 @@ function showSetupForm() {
 }
 
 async function signUp() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-    const userData = {
-        age: parseInt(document.getElementById("setupAge").value),
-        weight: parseFloat(document.getElementById("setupWeight").value),
-        height: parseFloat(document.getElementById("setupHeight").value),
-        sex: document.getElementById("setupSex").value,
-        activity: parseFloat(document.getElementById("setupActivity").value),
-        goal: document.getElementById("setupGoal").value
-    };
+    const age = parseInt(document.getElementById("setupAge").value);
+    const weight = parseFloat(document.getElementById("setupWeight").value);
+    const height = parseFloat(document.getElementById("setupHeight").value);
+    const sex = document.getElementById("setupSex").value;
+    const activity = parseFloat(document.getElementById("setupActivity").value);
+    const goal = document.getElementById("setupGoal").value;
+
+    if (!email || !password || !age || !weight || !height || !sex || !activity || !goal) {
+        alert("Please fill in all fields before signing up.");
+        return;
+    }
+
+    const baseData = { age, weight, height, sex, activity, goal };
+    const userData = calculateGoals(baseData);
 
     try {
         const userCred = await auth.createUserWithEmailAndPassword(email, password);
         const uid = userCred.user.uid;
         await db.collection("users").doc(uid).set(userData);
-        enterApp(userData);
+        enterApp(userData, email.split("@")[0]);
     } catch (err) {
         alert(err.message);
     }
+}
+
+function enterApp(userData, name = "User") {
+    localStorage.setItem("craveguard_user", JSON.stringify(userData));
+    document.getElementById("authScreen")?.remove();
+    document.getElementById("userSetup")?.remove();
+    document.getElementById("loginScreen")?.remove();
+
+    document.getElementById("userGreeting").classList.remove("hidden");
+    document.getElementById("username").textContent = name;
+
+    displayGoalSummary(userData);
+}
+
+function signOut() {
+    auth.signOut().then(() => location.reload());
+}
+
+function calculateGoals(user) {
+    const { weight, height, age, sex, activity, goal } = user;
+    const weightKg = weight * 0.453592;
+    const heightCm = height * 2.54;
+    const BMR = sex === "male"
+        ? 10 * weightKg + 6.25 * heightCm - 5 * age + 5
+        : 10 * weightKg + 6.25 * heightCm - 5 * age - 161;
+    let TDEE = BMR * activity;
+    if (goal === "lose") TDEE -= 500;
+    if (goal === "gain") TDEE += 250;
+    const protein = weight;
+    const fat = weight * 0.35;
+    const proteinCals = protein * 4;
+    const fatCals = fat * 9;
+    const carbs = (TDEE - proteinCals - fatCals) / 4;
+
+    return {
+        ...user,
+        calories: Math.round(TDEE),
+        protein: Math.round(protein),
+        fat: Math.round(fat),
+        carbs: Math.round(carbs)
+    };
+}
+
+async function signInWithEmail() {
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+
+    try {
+        const userCred = await auth.signInWithEmailAndPassword(email, password);
+        const doc = await db.collection("users").doc(userCred.user.uid).get();
+        enterApp(doc.data(), userCred.user.displayName || email.split("@")[0]);
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+function loginPrompt() {
+    document.getElementById("authScreen").classList.add("hidden");
+    document.getElementById("loginScreen").classList.remove("hidden");
 }
 
 async function signInWithGoogle() {
@@ -61,8 +126,8 @@ async function signInWithGoogle() {
 
 function enterApp(userData) {
     localStorage.setItem("craveguard_user", JSON.stringify(userData));
-    document.getElementById("authScreen").remove();
-    document.getElementById("userSetup").remove();
+    document.getElementById("authScreen")?.parentNode?.removeChild(document.getElementById("authScreen"));
+    document.getElementById("userSetup")?.parentNode?.removeChild(document.getElementById("userSetup"));
     displayGoalSummary(userData);
 }
 

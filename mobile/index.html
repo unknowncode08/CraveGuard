@@ -19,9 +19,12 @@
 <body class="bg-gray-50 text-gray-800 font-sans transition-all duration-300 ease-in-out">
     <div id="app" class="flex flex-col h-screen">
         <div id="authScreen"
-            class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center space-y-4 p-6">
-            <h1 class="text-2xl font-bold">Welcome to CraveGuard</h1>
-            <button onclick="showSetupForm()" class="bg-blue-600 text-white px-5 py-2 rounded-lg">Get Started</button>
+            class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center space-y-4 p-6 text-center">
+            <h1 class="text-3xl font-bold">Welcome to CraveGuard</h1>
+            <p class="text-gray-600">Track. Optimize. Conquer cravings.</p>
+            <button onclick="showSetupForm()" class="bg-blue-600 text-white px-6 py-3 rounded-lg">Get Started</button>
+            <button onclick="loginPrompt()" class="text-sm text-blue-600 underline">Already have an account? Log
+                In</button>
         </div>
 
         <div id="userSetup" class="fixed inset-0 bg-white z-40 hidden flex flex-col p-6 space-y-3 overflow-y-auto">
@@ -64,6 +67,10 @@
             <div class="tab-content" id="home">
                 <h1 class="text-2xl font-semibold">Welcome to <span class="text-blue-600">CraveGuard</span></h1>
                 <p class="text-gray-600">Track. Optimize. Conquer your cravings—completely free with AI power.</p>
+                <div id="userGreeting" class="text-sm p-2 text-right hidden">
+                    Welcome, <span id="username"></span> |
+                    <button onclick="signOut()" class="text-blue-600 underline">Sign out</button>
+                </div>
             </div>
             <div class="tab-content hidden" id="track">
                 <h2 class="text-xl font-semibold mb-2">Track Your Food</h2>
@@ -188,6 +195,15 @@
 
             <div id="foodError" class="text-sm text-red-500 mt-1"></div>
         </div>
+    </div>
+
+    <div id="loginScreen"
+        class="fixed inset-0 bg-white z-40 hidden flex flex-col items-center justify-center space-y-3 p-6">
+        <input id="loginEmail" type="email" placeholder="Email" class="p-2 border rounded w-full max-w-sm">
+        <input id="loginPassword" type="password" placeholder="Password" class="p-2 border rounded w-full max-w-sm">
+        <button onclick="signInWithEmail()" class="bg-green-600 text-white py-2 px-4 rounded">Log In</button>
+        <button onclick="signInWithGoogle()" class="bg-gray-800 text-white py-2 px-4 rounded">Log In with
+            Google</button>
     </div>
 </body>
 
