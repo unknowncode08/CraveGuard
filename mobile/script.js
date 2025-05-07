@@ -417,15 +417,40 @@ function updateRing(id, value, goal) {
     const offset = 282.74 - (282.74 * percent) / 100;
     const remaining = Math.round(goal - value);
     const over = remaining < 0;
+    const absValue = Math.abs(remaining);
 
     document.getElementById(id + "Circle").style.strokeDashoffset = offset.toFixed(2);
     document.getElementById(id + "Circle").style.stroke = ringConfig[id].color;
 
-    const text = over
-        ? `${Math.abs(remaining)} ${ringConfig[id].unit} over`
-        : `${remaining} ${ringConfig[id].unit} left`;
+    animateTextCount(id, absValue, ringConfig[id].unit, over);
 
     document.getElementById(id + "Text").textContent = text;
+}
+
+function animateTextCount(id, targetVal, unit, over) {
+    const el = document.getElementById(id + "Text");
+    let start = 0;
+    const duration = 1000;
+    const stepTime = 16;
+    const steps = Math.floor(duration / stepTime);
+    const increment = targetVal / steps;
+    let current = 0;
+
+    const interval = setInterval(() => {
+        current += increment;
+        const rounded = Math.round(current);
+
+        el.textContent = over
+            ? `${rounded} ${unit} over`
+            : `${targetVal - rounded <= 0 ? 0 : targetVal - rounded} ${unit} left`;
+
+        if (current >= targetVal) {
+            el.textContent = over
+                ? `${Math.abs(targetVal)} ${unit} over`
+                : `${Math.max(0, targetVal)} ${unit} left`;
+            clearInterval(interval);
+        }
+    }, stepTime);
 }
 
 function capitalize(str) {

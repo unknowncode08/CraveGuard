@@ -75,3 +75,7 @@ button {
 .animate-slide-up {
     animation: slide-up 0.3s ease-out;
 }
+
+circle {
+    transition: stroke-dashoffset 1s ease-out;
+}
