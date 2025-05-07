@@ -50,6 +50,10 @@ async function signUp() {
 function enterApp(userData, name = "User") {
     localStorage.setItem("craveguard_user", JSON.stringify(userData));
     updateCalorieProgress();
+
+    const today = new Date().toISOString().split("T")[0];
+    loadLogForDate(today);
+
     document.getElementById("authScreen")?.remove();
     document.getElementById("userSetup")?.remove();
     document.getElementById("loginScreen")?.remove();
