@@ -96,6 +96,7 @@ async function signInWithEmail() {
     try {
         const userCred = await auth.signInWithEmailAndPassword(email, password);
         const doc = await db.collection("users").doc(userCred.user.uid).get();
+        console.log(doc.data() + " | " + userCred.user.displayName);
         enterApp(doc.data(), userCred.user.displayName || email.split("@")[0]);
     } catch (err) {
         alert(err.message);
