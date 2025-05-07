@@ -423,8 +423,6 @@ function updateRing(id, value, goal) {
     document.getElementById(id + "Circle").style.stroke = ringConfig[id].color;
 
     animateTextCount(id, absValue, ringConfig[id].unit, over);
-
-    document.getElementById(id + "Text").textContent = text;
 }
 
 function animateTextCount(id, targetVal, unit, over) {
