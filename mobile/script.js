@@ -405,7 +405,7 @@ function updateCalorieProgress() {
 const ringConfig = {
     calories: { "unit": "kcal", "color": "#4ade80" },
     protein: { "unit": "g", "color": "#3b82f6" },
-    carbs: { "unit": "g", "color": "#f59e0b" },
+    carb: { "unit": "g", "color": "#f59e0b" },
     fat: { "unit": "g", "color": "#ef4444" },
     fiber: { "unit": "g", "color": "#10b981" }
 };
