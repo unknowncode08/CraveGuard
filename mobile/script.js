@@ -160,9 +160,13 @@ async function searchFood() {
         return;
     }
 
+    resultsContainer.innerHTML = "<div class='p-2 text-gray-400'>Searching...</div>";
+
     try {
         const response = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1`);
         const data = await response.json();
+
+        resultsContainer.innerHTML = "";
 
         if (data.products && data.products.length > 0) {
             data.products.slice(0, 5).forEach(product => {
@@ -195,5 +199,5 @@ function debounceSearchFood() {
     clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(() => {
         searchFood();
-    }, 500); // 500ms delay after typing stops
+    }, 2000); // 2000ms = 2 seconds
 }
