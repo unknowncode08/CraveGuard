@@ -85,8 +85,24 @@
                 </button>
             </div>
             <div class="tab-content hidden" id="goals">
-                <h2 class="text-xl font-semibold mb-2">Your Daily Goals</h2>
-                <div id="goalDisplay" class="text-sm text-gray-700"></div>
+                <h2 class="text-xl font-semibold mb-3">Your Daily Goals</h2>
+
+                <div class="flex items-center justify-center mb-4">
+                    <div class="relative w-40 h-40">
+                        <svg class="absolute top-0 left-0 w-full h-full" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="#eee" stroke-width="10" />
+                            <circle id="progressCircle" cx="50" cy="50" r="45" fill="none" stroke="#4ade80"
+                                stroke-width="10" stroke-linecap="round" stroke-dasharray="282.74"
+                                stroke-dashoffset="282.74" transform="rotate(-90 50 50)" />
+                        </svg>
+                        <div id="caloriesLeft"
+                            class="absolute inset-0 flex items-center justify-center text-center text-lg font-bold text-gray-700">
+                            0 kcal left
+                        </div>
+                    </div>
+                </div>
+
+                <div id="goalDisplay" class="text-sm text-gray-700 text-center"></div>
             </div>
             <div class="tab-content hidden" id="ai">
                 <h2 class="text-xl font-semibold">Ask CraveGuard AI</h2>

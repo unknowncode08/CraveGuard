@@ -49,6 +49,7 @@ async function signUp() {
 
 function enterApp(userData, name = "User") {
     localStorage.setItem("craveguard_user", JSON.stringify(userData));
+    updateCalorieProgress();
     document.getElementById("authScreen")?.remove();
     document.getElementById("userSetup")?.remove();
     document.getElementById("loginScreen")?.remove();
@@ -286,10 +287,12 @@ function saveFood() {
     foodLog.push({
         name,
         calories,
-        meal
+        meal,
+        timestamp: new Date().toISOString()
     });
 
     renderMeals();
+    updateCalorieProgress(); // update after saving
     closeFoodModal();
 }
 
@@ -348,6 +351,34 @@ function displayGoalSummary(data) {
       Carbs: ${data.carbs}g<br>
       Fat: ${data.fat}g
     `;
+}
+
+function updateCalorieProgress() {
+    const data = JSON.parse(localStorage.getItem("craveguard_user"));
+    if (!data) return;
+
+    const total = data.calories;
+    const todayLog = foodLog.filter(f => isToday(f.timestamp));
+    const consumed = todayLog.reduce((sum, item) => sum + item.calories, 0);
+    const remaining = total - consumed;
+
+    const percent = Math.min(100, (consumed / total) * 100);
+    const circle = document.getElementById("progressCircle");
+    const offset = 282.74 - (282.74 * percent) / 100;
+
+    circle.style.strokeDashoffset = offset.toFixed(2);
+
+    const display = document.getElementById("caloriesLeft");
+    display.textContent = remaining >= 0
+        ? `${Math.round(remaining)} kcal left`
+        : `${Math.abs(Math.round(remaining))} kcal over`;
+}
+
+// Helper: Check if a log is from today
+function isToday(timestamp) {
+    const now = new Date();
+    const logDate = new Date(timestamp);
+    return now.toDateString() === logDate.toDateString();
 }
 
 // Load saved data on page load
