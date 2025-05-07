@@ -284,7 +284,16 @@ async function saveFood() {
     }
 
     const dateKey = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
-    const entry = { name, meal, calories, timestamp: new Date().toISOString() };
+    const entry = {
+        name,
+        meal,
+        calories: parseFloat(document.getElementById("foodCalories").value),
+        protein: parseFloat(document.getElementById("foodProtein").value),
+        carbs: parseFloat(document.getElementById("foodCarbs").value),
+        fat: parseFloat(document.getElementById("foodFat").value),
+        fiber: parseFloat(document.getElementById("foodFiber")?.value || 0),
+        timestamp: new Date().toISOString()
+    };
 
     // Update local log
     foodLog.push(entry);
@@ -365,21 +374,44 @@ function updateCalorieProgress() {
     const data = JSON.parse(localStorage.getItem("craveguard_user"));
     if (!data) return;
 
-    const total = data.calories;
+    const total = {
+        calories: data.calories,
+        protein: data.protein,
+        carbs: data.carbs,
+        fat: data.fat,
+        fiber: 30 // Recommended daily fiber (can later personalize)
+    };
+
     const todayLog = foodLog.filter(f => isToday(f.timestamp));
-    const consumed = todayLog.reduce((sum, item) => sum + item.calories, 0);
-    const remaining = total - consumed;
 
-    const percent = Math.min(100, (consumed / total) * 100);
-    const circle = document.getElementById("progressCircle");
-    const offset = 282.74 - (282.74 * percent) / 100;
+    const totals = {
+        calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0
+    };
 
-    circle.style.strokeDashoffset = offset.toFixed(2);
+    todayLog.forEach(f => {
+        totals.calories += f.calories || 0;
+        totals.protein += f.protein || 0;
+        totals.carbs += f.carbs || 0;
+        totals.fat += f.fat || 0;
+        totals.fiber += f.fiber || 0;
+    });
 
-    const display = document.getElementById("caloriesLeft");
-    display.textContent = remaining >= 0
-        ? `${Math.round(remaining)} kcal left`
-        : `${Math.abs(Math.round(remaining))} kcal over`;
+    const updateRing = (idPrefix, value, goal, unit = "g") => {
+        const percent = Math.min(100, (value / goal) * 100);
+        const offset = 282.74 - (282.74 * percent) / 100;
+        document.getElementById(idPrefix + "Circle").style.strokeDashoffset = offset.toFixed(2);
+        document.getElementById(idPrefix + "Text").textContent = `${Math.round(value)}${unit} ${capitalize(idPrefix)}`;
+    };
+
+    updateRing("progress", totals.calories, total.calories, "kcal");
+    updateRing("protein", totals.protein, total.protein);
+    updateRing("carb", totals.carbs, total.carbs);
+    updateRing("fat", totals.fat, total.fat);
+    updateRing("fiber", totals.fiber, total.fiber);
+}
+
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 // Helper: Check if a log is from today
