@@ -126,13 +126,6 @@ async function signInWithGoogle() {
     }
 }
 
-function enterApp(userData) {
-    localStorage.setItem("craveguard_user", JSON.stringify(userData));
-    document.getElementById("authScreen")?.parentNode?.removeChild(document.getElementById("authScreen"));
-    document.getElementById("userSetup")?.parentNode?.removeChild(document.getElementById("userSetup"));
-    displayGoalSummary(userData);
-}
-
 document.addEventListener("DOMContentLoaded", () => {
     auth.onAuthStateChanged(async (user) => {
         if (user) {
