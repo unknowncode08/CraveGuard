@@ -396,18 +396,34 @@ function updateCalorieProgress() {
         totals.fiber += f.fiber || 0;
     });
 
-    const updateRing = (idPrefix, value, goal, unit = "g") => {
-        const percent = Math.min(100, (value / goal) * 100);
-        const offset = 282.74 - (282.74 * percent) / 100;
-        document.getElementById(idPrefix + "Circle").style.strokeDashoffset = offset.toFixed(2);
-        document.getElementById(idPrefix + "Text").textContent = `${Math.round(value)}${unit} ${capitalize(idPrefix)}`;
-    };
-
-    updateRing("progress", totals.calories, total.calories, "kcal");
+    updateRing("calories", totals.calories, total.calories);
     updateRing("protein", totals.protein, total.protein);
     updateRing("carb", totals.carbs, total.carbs);
     updateRing("fat", totals.fat, total.fat);
     updateRing("fiber", totals.fiber, total.fiber);
+}
+
+const ringConfig = {
+    calories: { unit: "kcal", color: "#4ade80" },
+    protein: { unit: "g", color: "#3b82f6" },
+    carbs: { unit: "g", color: "#f59e0b" },
+    fat: { unit: "g", color: "#ef4444" },
+    fiber: { unit: "g", color: "#10b981" }
+};
+
+function updateRing(id, value, goal) {
+    const percent = Math.min(100, (value / goal) * 100);
+    const offset = 282.74 - (282.74 * percent) / 100;
+    const remaining = Math.round(goal - value);
+    const over = remaining < 0;
+
+    document.getElementById(id + "Circle").style.strokeDashoffset = offset.toFixed(2);
+
+    const text = over
+        ? `${Math.abs(remaining)} ${ringConfig[id].unit} over`
+        : `${remaining} ${ringConfig[id].unit} left`;
+
+    document.getElementById(id + "Text").textContent = text;
 }
 
 function capitalize(str) {

@@ -103,64 +103,75 @@
             <div class="tab-content hidden" id="goals">
                 <h2 class="text-xl font-semibold mb-3">Your Daily Goals</h2>
 
-                <div class="flex items-center justify-center mb-4">
-                    <div class="relative w-40 h-40">
-                        <svg class="absolute top-0 left-0 w-full h-full" viewBox="0 0 100 100">
+                <div class="flex flex-col items-center">
+                    <div class="relative w-32 h-32">
+                        <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full">
                             <circle cx="50" cy="50" r="45" fill="none" stroke="#eee" stroke-width="10" />
-                            <circle id="progressCircle" cx="50" cy="50" r="45" fill="none" stroke="#4ade80"
+                            <circle id="caloriesCircle" cx="50" cy="50" r="45" fill="none" stroke="#4ade80"
                                 stroke-width="10" stroke-linecap="round" stroke-dasharray="282.74"
                                 stroke-dashoffset="282.74" transform="rotate(-90 50 50)" />
                         </svg>
-                        <div id="progressText"
-                            class="absolute inset-0 flex items-center justify-center text-center text-lg font-bold text-gray-700">
-                            0 kcal left
-                        </div>
+                        <div id="caloriesText"
+                            class="absolute inset-0 flex items-center justify-center text-sm font-bold">0 kcal</div>
                     </div>
+                    <div class="mt-2 text-xs font-medium text-gray-600">Calories</div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mt-4 text-center">
-                    <div class="relative w-32 h-32 mx-auto">
-                        <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full">
-                            <circle cx="50" cy="50" r="45" fill="none" stroke="#eee" stroke-width="10" />
-                            <circle id="proteinCircle" cx="50" cy="50" r="45" fill="none" stroke="#3b82f6"
-                                stroke-width="10" stroke-linecap="round" stroke-dasharray="282.74"
-                                stroke-dashoffset="282.74" transform="rotate(-90 50 50)" />
-                        </svg>
-                        <div id="proteinText"
-                            class="absolute inset-0 flex items-center justify-center text-sm font-bold">0g Protein</div>
+                    <div class="flex flex-col items-center">
+                        <div class="relative w-32 h-32">
+                            <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full">
+                                <circle cx="50" cy="50" r="45" fill="none" stroke="#eee" stroke-width="10" />
+                                <circle id="proteinCircle" cx="50" cy="50" r="45" fill="none" stroke="#4ade80"
+                                    stroke-width="10" stroke-linecap="round" stroke-dasharray="282.74"
+                                    stroke-dashoffset="282.74" transform="rotate(-90 50 50)" />
+                            </svg>
+                            <div id="proteinText"
+                                class="absolute inset-0 flex items-center justify-center text-sm font-bold">0 kcal</div>
+                        </div>
+                        <div class="mt-2 text-xs font-medium text-gray-600">Calories</div>
                     </div>
 
-                    <div class="relative w-32 h-32 mx-auto">
-                        <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full">
-                            <circle cx="50" cy="50" r="45" fill="none" stroke="#eee" stroke-width="10" />
-                            <circle id="carbCircle" cx="50" cy="50" r="45" fill="none" stroke="#f59e0b"
-                                stroke-width="10" stroke-linecap="round" stroke-dasharray="282.74"
-                                stroke-dashoffset="282.74" transform="rotate(-90 50 50)" />
-                        </svg>
-                        <div id="carbText" class="absolute inset-0 flex items-center justify-center text-sm font-bold">
-                            0g Carbs</div>
+                    <div class="flex flex-col items-center">
+                        <div class="relative w-32 h-32">
+                            <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full">
+                                <circle cx="50" cy="50" r="45" fill="none" stroke="#eee" stroke-width="10" />
+                                <circle id="carbCircle" cx="50" cy="50" r="45" fill="none" stroke="#4ade80"
+                                    stroke-width="10" stroke-linecap="round" stroke-dasharray="282.74"
+                                    stroke-dashoffset="282.74" transform="rotate(-90 50 50)" />
+                            </svg>
+                            <div id="carbText"
+                                class="absolute inset-0 flex items-center justify-center text-sm font-bold">0 kcal</div>
+                        </div>
+                        <div class="mt-2 text-xs font-medium text-gray-600">Calories</div>
                     </div>
 
-                    <div class="relative w-32 h-32 mx-auto">
-                        <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full">
-                            <circle cx="50" cy="50" r="45" fill="none" stroke="#eee" stroke-width="10" />
-                            <circle id="fatCircle" cx="50" cy="50" r="45" fill="none" stroke="#ef4444" stroke-width="10"
-                                stroke-linecap="round" stroke-dasharray="282.74" stroke-dashoffset="282.74"
-                                transform="rotate(-90 50 50)" />
-                        </svg>
-                        <div id="fatText" class="absolute inset-0 flex items-center justify-center text-sm font-bold">0g
-                            Fat</div>
+                    <div class="flex flex-col items-center">
+                        <div class="relative w-32 h-32">
+                            <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full">
+                                <circle cx="50" cy="50" r="45" fill="none" stroke="#eee" stroke-width="10" />
+                                <circle id="fatCircle" cx="50" cy="50" r="45" fill="none" stroke="#4ade80"
+                                    stroke-width="10" stroke-linecap="round" stroke-dasharray="282.74"
+                                    stroke-dashoffset="282.74" transform="rotate(-90 50 50)" />
+                            </svg>
+                            <div id="fatText"
+                                class="absolute inset-0 flex items-center justify-center text-sm font-bold">0 kcal</div>
+                        </div>
+                        <div class="mt-2 text-xs font-medium text-gray-600">Calories</div>
                     </div>
 
-                    <div class="relative w-32 h-32 mx-auto">
-                        <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full">
-                            <circle cx="50" cy="50" r="45" fill="none" stroke="#eee" stroke-width="10" />
-                            <circle id="fiberCircle" cx="50" cy="50" r="45" fill="none" stroke="#10b981"
-                                stroke-width="10" stroke-linecap="round" stroke-dasharray="282.74"
-                                stroke-dashoffset="282.74" transform="rotate(-90 50 50)" />
-                        </svg>
-                        <div id="fiberText" class="absolute inset-0 flex items-center justify-center text-sm font-bold">
-                            0g Fiber</div>
+                    <div class="flex flex-col items-center">
+                        <div class="relative w-32 h-32">
+                            <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full">
+                                <circle cx="50" cy="50" r="45" fill="none" stroke="#eee" stroke-width="10" />
+                                <circle id="fiberCircle" cx="50" cy="50" r="45" fill="none" stroke="#4ade80"
+                                    stroke-width="10" stroke-linecap="round" stroke-dasharray="282.74"
+                                    stroke-dashoffset="282.74" transform="rotate(-90 50 50)" />
+                            </svg>
+                            <div id="fiberText"
+                                class="absolute inset-0 flex items-center justify-center text-sm font-bold">0 kcal</div>
+                        </div>
+                        <div class="mt-2 text-xs font-medium text-gray-600">Calories</div>
                     </div>
                 </div>
 
