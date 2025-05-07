@@ -75,6 +75,12 @@
             <div class="tab-content hidden" id="track">
                 <h2 class="text-xl font-semibold mb-2">Track Your Food</h2>
 
+                <div class="mb-4">
+                    <label for="logDate" class="block mb-1 text-sm font-medium">View Food Log by Date</label>
+                    <input type="date" id="logDate" class="border rounded px-2 py-1"
+                        onchange="loadLogForDate(this.value)">
+                </div>
+
                 <div id="meal-sections" class="space-y-4">
                     <!-- Meals will appear here -->
                 </div>

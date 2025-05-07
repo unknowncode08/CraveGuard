@@ -268,25 +268,35 @@ async function getNutrition() {
     }
 }
 
-function saveFood() {
+async function saveFood() {
     const name = document.getElementById("foodName").value.trim();
     const calories = parseInt(document.getElementById("foodCalories").value, 10);
     const meal = document.getElementById("mealSelect").value;
+    const user = auth.currentUser;
 
-    if (!name || isNaN(calories)) {
+    if (!user || !name || isNaN(calories)) {
         document.getElementById("foodError").textContent = "Please fill in the required fields.";
         return;
     }
 
-    foodLog.push({
-        name,
-        calories,
-        meal,
-        timestamp: new Date().toISOString()
+    const dateKey = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
+    const entry = { name, meal, calories, timestamp: new Date().toISOString() };
+
+    // Update local log
+    foodLog.push(entry);
+
+    // Update Firestore
+    const logRef = db.collection("users").doc(user.uid).collection("foodLogs").doc(dateKey);
+    const docSnap = await logRef.get();
+    const existing = docSnap.exists ? docSnap.data().entries || [] : [];
+
+    await logRef.set({
+        date: dateKey,
+        entries: [...existing, entry]
     });
 
     renderMeals();
-    updateCalorieProgress(); // update after saving
+    updateCalorieProgress();
     closeFoodModal();
 }
 
@@ -382,3 +392,26 @@ document.addEventListener("DOMContentLoaded", () => {
         displayGoalSummary(JSON.parse(saved));
     }
 });
+
+async function loadLogForDate(date) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const logRef = db.collection("users").doc(user.uid).collection("foodLogs").doc(date);
+    const docSnap = await logRef.get();
+
+    if (docSnap.exists) {
+        foodLog = docSnap.data().entries || [];
+    } else {
+        foodLog = [];
+    }
+
+    renderMeals();
+    updateCalorieProgress();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const today = new Date().toISOString().split("T")[0];
+    const dateInput = document.getElementById("logDate");
+    if (dateInput) dateInput.value = today;
+});  
