@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (user) {
             const doc = await db.collection("users").doc(user.uid).get();
             if (doc.exists) {
-                enterApp(doc.data());
+                enterApp(doc.data(), user.displayName || user.email.split("@")[0]);
             } else {
                 document.getElementById("authScreen").classList.remove("hidden");
             }
