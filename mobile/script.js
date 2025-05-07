@@ -155,40 +155,40 @@ async function searchFood() {
     const query = document.getElementById("foodSearch").value.trim();
     const resultsContainer = document.getElementById("searchResults");
     resultsContainer.innerHTML = "<div class='p-2 text-gray-400'>Searching...</div>";
-
+  
     if (query.length < 3) return;
-
+  
     try {
-        const response = await fetch(`https://trackapi.nutritionix.com/v2/natural/nutrients`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "x-app-id": "97b33d3c",      // Replace with your credentials
-                "x-app-key": "2655a3cc5d4d0cd5c918f66a501f6e6a—"
-            },
-            body: JSON.stringify({ query })
-        });
-
-        const data = await response.json();
-        const food = data.foods?.[0];
-
-        if (!food) {
-            resultsContainer.innerHTML = "<div class='p-2 text-gray-500'>No results found.</div>";
-            return;
-        }
-
-        document.getElementById("foodName").value = food.food_name;
-        document.getElementById("foodCalories").value = Math.round(food.nf_calories);
-        document.getElementById("foodProtein").value = food.nf_protein;
-        document.getElementById("foodCarbs").value = food.nf_total_carbohydrate;
-        document.getElementById("foodFat").value = food.nf_total_fat;
-        document.getElementById("nutritionFields").classList.remove("hidden");
-        resultsContainer.innerHTML = "";
+      const response = await fetch("https://trackapi.nutritionix.com/v2/natural/nutrients", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-app-id": "97b33d3c",      // Replace with your actual App ID
+          "x-app-key": "2655a3cc5d4d0cd5c918f66a501f6e6a—"     // Replace with your actual App Key
+        },
+        body: JSON.stringify({ query })
+      });
+  
+      const data = await response.json();
+      const food = data.foods?.[0];
+  
+      if (!food) {
+        resultsContainer.innerHTML = "<div class='p-2 text-gray-500'>No results found.</div>";
+        return;
+      }
+  
+      document.getElementById("foodName").value = food.food_name;
+      document.getElementById("foodCalories").value = Math.round(food.nf_calories);
+      document.getElementById("foodProtein").value = food.nf_protein;
+      document.getElementById("foodCarbs").value = food.nf_total_carbohydrate;
+      document.getElementById("foodFat").value = food.nf_total_fat;
+      document.getElementById("nutritionFields").classList.remove("hidden");
+      resultsContainer.innerHTML = "";
     } catch (err) {
-        console.error("Nutritionix error:", err);
-        resultsContainer.innerHTML = "<div class='p-2 text-red-500'>Error searching food.</div>";
+      console.error("Nutritionix error:", err);
+      resultsContainer.innerHTML = "<div class='p-2 text-red-500'>Error searching food.</div>";
     }
-}
+  }  
 
 let debounceTimeout;
 
