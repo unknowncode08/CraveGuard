@@ -146,3 +146,68 @@ function saveFood() {
     renderMeals();
     closeFoodModal();
 }
+
+function saveUserInfo() {
+    const age = parseInt(document.getElementById("userAge").value);
+    const weight = parseFloat(document.getElementById("userWeight").value); // in lbs
+    const height = parseFloat(document.getElementById("userHeight").value); // in inches
+    const sex = document.getElementById("userSex").value;
+    const activity = parseFloat(document.getElementById("userActivity").value);
+    const goal = document.getElementById("userGoal").value;
+
+    if (!age || !weight || !height || !sex || !activity || !goal) {
+        alert("Please fill out all fields.");
+        return;
+    }
+
+    // Convert to metric
+    const weightKg = weight * 0.453592;
+    const heightCm = height * 2.54;
+
+    // Mifflin-St Jeor Equation
+    const BMR = sex === "male"
+        ? 10 * weightKg + 6.25 * heightCm - 5 * age + 5
+        : 10 * weightKg + 6.25 * heightCm - 5 * age - 161;
+
+    let TDEE = BMR * activity;
+
+    // Adjust for goal
+    if (goal === "lose") TDEE -= 500;
+    if (goal === "gain") TDEE += 250;
+
+    const protein = weight; // 1g/lb (estimated)
+    const fat = weight * 0.35; // g
+    const proteinCals = protein * 4;
+    const fatCals = fat * 9;
+    const carbs = (TDEE - proteinCals - fatCals) / 4;
+
+    const userData = {
+        age, weight, height, sex, activity, goal,
+        calories: Math.round(TDEE),
+        protein: Math.round(protein),
+        fat: Math.round(fat),
+        carbs: Math.round(carbs)
+    };
+
+    localStorage.setItem("craveguard_user", JSON.stringify(userData));
+    displayGoalSummary(userData);
+}
+
+function displayGoalSummary(data) {
+    const target = document.getElementById("goalDisplay");
+    target.innerHTML = `
+      <strong>Daily Targets:</strong><br>
+      Calories: ${data.calories} kcal<br>
+      Protein: ${data.protein}g<br>
+      Carbs: ${data.carbs}g<br>
+      Fat: ${data.fat}g
+    `;
+}
+
+// Load saved data on page load
+document.addEventListener("DOMContentLoaded", () => {
+    const saved = localStorage.getItem("craveguard_user");
+    if (saved) {
+        displayGoalSummary(JSON.parse(saved));
+    }
+});

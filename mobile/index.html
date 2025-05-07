@@ -44,8 +44,40 @@
                 <div id="aiOutput" class="mt-4 p-4 bg-gray-100 rounded-xl shadow-inner text-sm"></div>
             </div>
             <div class="tab-content hidden" id="profile">
-                <h2 class="text-xl font-semibold">Profile</h2>
-                <p>Manage your account, progress, and preferences.</p>
+                <h2 class="text-xl font-semibold mb-3">Your Info</h2>
+                <div class="space-y-2">
+                    <input id="userAge" type="number" placeholder="Age" class="w-full p-2 border rounded-lg">
+                    <input id="userWeight" type="number" placeholder="Weight (lbs)"
+                        class="w-full p-2 border rounded-lg">
+                    <input id="userHeight" type="number" placeholder="Height (inches)"
+                        class="w-full p-2 border rounded-lg">
+
+                    <select id="userSex" class="w-full p-2 border rounded-lg">
+                        <option value="" disabled selected>Sex</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+
+                    <select id="userActivity" class="w-full p-2 border rounded-lg">
+                        <option value="" disabled selected>Activity Level</option>
+                        <option value="1.2">Sedentary</option>
+                        <option value="1.375">Lightly active</option>
+                        <option value="1.55">Moderately active</option>
+                        <option value="1.725">Very active</option>
+                    </select>
+
+                    <select id="userGoal" class="w-full p-2 border rounded-lg">
+                        <option value="" disabled selected>Goal</option>
+                        <option value="lose">Lose Weight</option>
+                        <option value="maintain">Maintain</option>
+                        <option value="gain">Gain Muscle</option>
+                    </select>
+
+                    <button onclick="saveUserInfo()"
+                        class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Save &
+                        Calculate</button>
+                    <div id="goalDisplay" class="mt-4 text-sm text-gray-700"></div>
+                </div>
             </div>
         </div>
 
