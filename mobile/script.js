@@ -239,6 +239,7 @@ async function getNutrition() {
   Protein: [grams only]
   Carbs: [grams only]
   Fat: [grams only]
+  Fiber: [grams only]
   `;
 
         const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyC1wlM7BygYivPTog2Qa7tzkmx-aijUPlY", {
@@ -263,6 +264,7 @@ async function getNutrition() {
         document.getElementById("foodProtein").value = parseFloat(getVal("protein")) || '';
         document.getElementById("foodCarbs").value = parseFloat(getVal("carbs")) || '';
         document.getElementById("foodFat").value = parseFloat(getVal("fat")) || '';
+        document.getElementById("foodFiber").value = parseFloat(getVal("fiber")) || '';
 
         output.textContent = "";
     } catch (err) {
@@ -417,6 +419,7 @@ function updateRing(id, value, goal) {
     const over = remaining < 0;
 
     document.getElementById(id + "Circle").style.strokeDashoffset = offset.toFixed(2);
+    document.getElementById(id + "Circle").style.stroke = ringConfig[id].color;
 
     const text = over
         ? `${Math.abs(remaining)} ${ringConfig[id].unit} over`
