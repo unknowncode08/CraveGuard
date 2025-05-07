@@ -13,7 +13,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <!-- Firebase Firestore (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="bg-gray-50 text-gray-800 font-sans transition-all duration-300 ease-in-out">
@@ -173,6 +173,11 @@
                         </div>
                         <div class="mt-2 text-xs font-medium text-gray-600">Fiber</div>
                     </div>
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="text-sm font-semibold mb-2 text-gray-700 text-center">5-Day Nutrition Trend</h3>
+                    <canvas id="trendChart" height="200"></canvas>
                 </div>
 
                 <div id="goalDisplay" class="text-sm text-gray-700 text-center"></div>

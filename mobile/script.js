@@ -62,6 +62,7 @@ function enterApp(userData, name = "User") {
     document.getElementById("username").textContent = name;
 
     displayGoalSummary(userData);
+    loadFiveDayTrend();
 }
 
 function signOut() {
@@ -449,6 +450,111 @@ function animateTextCount(id, targetVal, unit, over) {
             clearInterval(interval);
         }
     }, stepTime);
+}
+
+async function loadFiveDayTrend() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const labels = [];
+    const calories = [];
+    const protein = [];
+    const carbs = [];
+    const fat = [];
+    const fiber = [];
+
+    for (let i = 4; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split("T")[0];
+        labels.push(dateStr.slice(5)); // e.g. MM-DD
+
+        const doc = await db.collection("users")
+            .doc(user.uid)
+            .collection("foodLogs")
+            .doc(dateStr)
+            .get();
+
+        let daily = { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 };
+
+        if (doc.exists) {
+            const entries = doc.data().entries || [];
+            for (const e of entries) {
+                daily.calories += e.calories || 0;
+                daily.protein += e.protein || 0;
+                daily.carbs += e.carbs || 0;
+                daily.fat += e.fat || 0;
+                daily.fiber += e.fiber || 0;
+            }
+        }
+
+        calories.push(daily.calories);
+        protein.push(daily.protein);
+        carbs.push(daily.carbs);
+        fat.push(daily.fat);
+        fiber.push(daily.fiber);
+    }
+
+    drawTrendChart(labels, { calories, protein, carbs, fat, fiber });
+}
+
+let trendChart;
+
+function drawTrendChart(labels, data) {
+    const ctx = document.getElementById("trendChart").getContext("2d");
+    if (trendChart) trendChart.destroy();
+
+    trendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Calories',
+                    data: data.calories,
+                    borderColor: '#4ade80',
+                    fill: false
+                },
+                {
+                    label: 'Protein',
+                    data: data.protein,
+                    borderColor: '#3b82f6',
+                    fill: false
+                },
+                {
+                    label: 'Carbs',
+                    data: data.carbs,
+                    borderColor: '#f59e0b',
+                    fill: false
+                },
+                {
+                    label: 'Fat',
+                    data: data.fat,
+                    borderColor: '#ef4444',
+                    fill: false
+                },
+                {
+                    label: 'Fiber',
+                    data: data.fiber,
+                    borderColor: '#10b981',
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
 }
 
 function capitalize(str) {
