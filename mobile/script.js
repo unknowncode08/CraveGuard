@@ -1,4 +1,84 @@
+// Initialize Firebase
+firebaseConfig = {
+    apiKey: "AIzaSyA9OshCFN-q6g2hRtWstRaVMNP6JZROXfQ",
+    authDomain: "craveguard-e5d95.firebaseapp.com",
+    projectId: "craveguard-e5d95",
+    storageBucket: "craveguard-e5d95.firebasestorage.app",
+    messagingSenderId: "804689712535",
+    appId: "1:804689712535:web:bbb0c9d3540e274d16a0d2"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+function showSetupForm() {
+    document.getElementById("authScreen").classList.add("hidden");
+    document.getElementById("userSetup").classList.remove("hidden");
+}
+
+async function signUp() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    const userData = {
+        age: parseInt(document.getElementById("setupAge").value),
+        weight: parseFloat(document.getElementById("setupWeight").value),
+        height: parseFloat(document.getElementById("setupHeight").value),
+        sex: document.getElementById("setupSex").value,
+        activity: parseFloat(document.getElementById("setupActivity").value),
+        goal: document.getElementById("setupGoal").value
+    };
+
+    try {
+        const userCred = await auth.createUserWithEmailAndPassword(email, password);
+        const uid = userCred.user.uid;
+        await db.collection("users").doc(uid).set(userData);
+        enterApp(userData);
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+async function signInWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    try {
+        const result = await auth.signInWithPopup(provider);
+        const uid = result.user.uid;
+
+        const doc = await db.collection("users").doc(uid).get();
+        if (doc.exists) {
+            enterApp(doc.data());
+        } else {
+            alert("Account found but no profile data. Please sign up again.");
+            auth.signOut();
+        }
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+function enterApp(userData) {
+    localStorage.setItem("craveguard_user", JSON.stringify(userData));
+    document.getElementById("authScreen").remove();
+    document.getElementById("userSetup").remove();
+    displayGoalSummary(userData);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            const doc = await db.collection("users").doc(user.uid).get();
+            if (doc.exists) {
+                enterApp(doc.data());
+            } else {
+                document.getElementById("authScreen").classList.remove("hidden");
+            }
+        } else {
+            document.getElementById("authScreen").classList.remove("hidden");
+        }
+    });
+
     const buttons = document.querySelectorAll('.tab-btn');
     const tabs = document.querySelectorAll('.tab-content');
 

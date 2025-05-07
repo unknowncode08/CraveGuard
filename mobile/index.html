@@ -7,10 +7,54 @@
     <title>CraveGuard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
 </head>
 
 <body class="bg-gray-50 text-gray-800 font-sans transition-all duration-300 ease-in-out">
     <div id="app" class="flex flex-col h-screen">
+        <div id="authScreen"
+            class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center space-y-4 p-6">
+            <h1 class="text-2xl font-bold">Welcome to CraveGuard</h1>
+            <button onclick="showSetupForm()" class="bg-blue-600 text-white px-5 py-2 rounded-lg">Get Started</button>
+        </div>
+
+        <div id="userSetup" class="fixed inset-0 bg-white z-40 hidden flex flex-col p-6 space-y-3 overflow-y-auto">
+            <h2 class="text-xl font-bold mb-2">Tell us about yourself</h2>
+            <input id="setupAge" placeholder="Age" type="number" class="p-2 border rounded">
+            <input id="setupWeight" placeholder="Weight (lbs)" type="number" class="p-2 border rounded">
+            <input id="setupHeight" placeholder="Height (inches)" type="number" class="p-2 border rounded">
+
+            <select id="setupSex" class="p-2 border rounded">
+                <option value="" disabled selected>Sex</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+
+            <select id="setupActivity" class="p-2 border rounded">
+                <option value="" disabled selected>Activity Level</option>
+                <option value="1.2">Sedentary</option>
+                <option value="1.375">Lightly active</option>
+                <option value="1.55">Moderately active</option>
+                <option value="1.725">Very active</option>
+            </select>
+
+            <select id="setupGoal" class="p-2 border rounded">
+                <option value="" disabled selected>Goal</option>
+                <option value="lose">Lose Weight</option>
+                <option value="maintain">Maintain</option>
+                <option value="gain">Gain Muscle</option>
+            </select>
+
+            <input id="email" type="email" placeholder="Email" class="p-2 border rounded">
+            <input id="password" type="password" placeholder="Password" class="p-2 border rounded">
+
+            <button onclick="signUp()" class="bg-green-600 text-white py-2 rounded">Sign Up</button>
+            <button onclick="signInWithGoogle()" class="bg-gray-800 text-white py-2 rounded">Sign in with
+                Google</button>
+        </div>
 
         <!-- Tab Views -->
         <div class="flex-1 overflow-y-auto p-4 space-y-4">
@@ -31,8 +75,8 @@
                 </button>
             </div>
             <div class="tab-content hidden" id="goals">
-                <h2 class="text-xl font-semibold">Your Goals</h2>
-                <p>View and adjust your calorie and macro goals.</p>
+                <h2 class="text-xl font-semibold mb-2">Your Daily Goals</h2>
+                <div id="goalDisplay" class="text-sm text-gray-700"></div>
             </div>
             <div class="tab-content hidden" id="ai">
                 <h2 class="text-xl font-semibold">Ask CraveGuard AI</h2>
