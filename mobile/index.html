@@ -84,9 +84,8 @@
             <h3 class="text-lg font-semibold">Add Food</h3>
 
             <input id="foodSearch" type="text" class="w-full p-2 border rounded-lg"
-                placeholder="Search or describe food..." oninput="debounceSearchFood()">
+                placeholder="Search or describe food...">
 
-            <div id="searchResults" class="max-h-48 overflow-y-auto"></div>
 
             <select id="mealSelect" class="w-full p-2 border rounded-lg">
                 <option value="Breakfast">Breakfast</option>
@@ -104,7 +103,7 @@
             </div>
 
             <button onclick="getNutrition()"
-                class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Estimate with AI</button>
+                class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Search with AI</button>
             <button onclick="saveFood()" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">Add
                 Food</button>
 
