@@ -397,6 +397,10 @@ async function loadLogForDate(date) {
     const user = auth.currentUser;
     if (!user) return;
 
+    const today = new Date().toISOString().split("T")[0];
+    const status = document.getElementById("logDateStatus");
+    const returnBtn = document.getElementById("returnToTodayBtn");
+
     const logRef = db.collection("users").doc(user.uid).collection("foodLogs").doc(date);
     const docSnap = await logRef.get();
 
@@ -404,6 +408,16 @@ async function loadLogForDate(date) {
         foodLog = docSnap.data().entries || [];
     } else {
         foodLog = [];
+    }
+
+    if (date === today) {
+        status.innerHTML = `<span class="text-green-600 font-semibold">📅 Logging Today’s Meals</span>`;
+        document.getElementById("addFoodBtn").disabled = false;
+        returnBtn.classList.add("hidden");
+    } else {
+        status.innerHTML = `<span class="text-gray-500 italic">🔒 Viewing Past Log (${date})</span>`;
+        document.getElementById("addFoodBtn").disabled = true;
+        returnBtn.classList.remove("hidden");
     }
 
     renderMeals();
@@ -414,4 +428,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const today = new Date().toISOString().split("T")[0];
     const dateInput = document.getElementById("logDate");
     if (dateInput) dateInput.value = today;
-});  
+});
+
+function returnToToday() {
+    const today = new Date().toISOString().split("T")[0];
+    document.getElementById("logDate").value = today;
+    loadLogForDate(today);
+}  

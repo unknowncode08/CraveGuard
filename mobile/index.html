@@ -81,11 +81,21 @@
                         onchange="loadLogForDate(this.value)">
                 </div>
 
+                <div class="flex items-center justify-between mt-2">
+                    <div id="logDateStatus" class="text-sm font-medium flex items-center space-x-1"></div>
+                    <button id="returnToTodayBtn" onclick="returnToToday()"
+                        class="text-sm text-blue-600 underline hidden">
+                        Return to Today
+                    </button>
+                </div>
+
+                <div id="logDateStatus" class="text-sm font-medium mt-1"></div>
+
                 <div id="meal-sections" class="space-y-4">
                     <!-- Meals will appear here -->
                 </div>
 
-                <button onclick="openFoodModal()"
+                <button id="addFoodBtn" onclick="openFoodModal()"
                     class="mt-4 w-full bg-blue-600 text-white py-2 rounded-xl shadow hover:bg-blue-700 transition">
                     + Add Food
                 </button>
