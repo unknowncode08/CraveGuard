@@ -154,42 +154,39 @@ function saveFood() {
 async function searchFood() {
     const query = document.getElementById("foodSearch").value.trim();
     const resultsContainer = document.getElementById("searchResults");
-    resultsContainer.innerHTML = "";
-
-    if (query.length < 3) {
-        return;
-    }
-
     resultsContainer.innerHTML = "<div class='p-2 text-gray-400'>Searching...</div>";
 
+    if (query.length < 3) return;
+
     try {
-        const response = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1`);
+        const response = await fetch(`https://trackapi.nutritionix.com/v2/natural/nutrients`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-app-id": "97b33d3c",      // Replace with your credentials
+                "x-app-key": "2655a3cc5d4d0cd5c918f66a501f6e6a—"
+            },
+            body: JSON.stringify({ query })
+        });
+
         const data = await response.json();
+        const food = data.foods?.[0];
 
-        resultsContainer.innerHTML = "";
-
-        if (data.products && data.products.length > 0) {
-            data.products.slice(0, 5).forEach(product => {
-                const item = document.createElement("div");
-                item.className = "p-2 border-b cursor-pointer hover:bg-gray-100";
-                item.textContent = product.product_name || "Unnamed Product";
-                item.onclick = () => {
-                    document.getElementById("foodName").value = product.product_name || "";
-                    document.getElementById("foodCalories").value = product.nutriments["energy-kcal_100g"] || "";
-                    document.getElementById("foodProtein").value = product.nutriments.proteins_100g || "";
-                    document.getElementById("foodCarbs").value = product.nutriments.carbohydrates_100g || "";
-                    document.getElementById("foodFat").value = product.nutriments.fat_100g || "";
-                    document.getElementById("nutritionFields").classList.remove("hidden");
-                    resultsContainer.innerHTML = "";
-                };
-                resultsContainer.appendChild(item);
-            });
-        } else {
+        if (!food) {
             resultsContainer.innerHTML = "<div class='p-2 text-gray-500'>No results found.</div>";
+            return;
         }
-    } catch (error) {
-        console.error("Error fetching food data:", error);
-        resultsContainer.innerHTML = "<div class='p-2 text-red-500'>Error fetching data.</div>";
+
+        document.getElementById("foodName").value = food.food_name;
+        document.getElementById("foodCalories").value = Math.round(food.nf_calories);
+        document.getElementById("foodProtein").value = food.nf_protein;
+        document.getElementById("foodCarbs").value = food.nf_total_carbohydrate;
+        document.getElementById("foodFat").value = food.nf_total_fat;
+        document.getElementById("nutritionFields").classList.remove("hidden");
+        resultsContainer.innerHTML = "";
+    } catch (err) {
+        console.error("Nutritionix error:", err);
+        resultsContainer.innerHTML = "<div class='p-2 text-red-500'>Error searching food.</div>";
     }
 }
 
