@@ -418,8 +418,6 @@ function updateRing(id, value, goal) {
 
     document.getElementById(id + "Circle").style.strokeDashoffset = offset.toFixed(2);
 
-    console.log(ringConfig[id]);
-
     const text = over
         ? `${Math.abs(remaining)} ${ringConfig[id].unit} over`
         : `${remaining} ${ringConfig[id].unit} left`;
