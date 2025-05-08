@@ -47,11 +47,20 @@ async function signUp() {
     }
 }
 
+function getLocalDateString() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`; // e.g. 2025-05-07
+}
+
 function enterApp(userData, name = "User") {
     localStorage.setItem("craveguard_user", JSON.stringify(userData));
     updateCalorieProgress();
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = getLocalDateString();
+    console.log(today);
     loadLogForDate(today);
 
     document.getElementById("authScreen")?.remove();
@@ -285,7 +294,7 @@ async function saveFood() {
         return;
     }
 
-    const dateKey = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
+    const dateKey = getLocalDateString();    // 'YYYY-MM-DD'
     const entry = {
         name,
         meal,
@@ -294,7 +303,7 @@ async function saveFood() {
         carbs: parseFloat(document.getElementById("foodCarbs").value),
         fat: parseFloat(document.getElementById("foodFat").value),
         fiber: parseFloat(document.getElementById("foodFiber")?.value || 0),
-        timestamp: new Date().toISOString()
+        timestamp: getLocalDateString()
     };
 
     // Update local log
@@ -466,7 +475,7 @@ async function loadFiveDayTrend() {
     for (let i = 4; i >= 0; i--) {
         const date = new Date();
         date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split("T")[0];
+        const dateStr = getLocalDateString();
         labels.push(dateStr.slice(5)); // e.g. MM-DD
 
         const doc = await db.collection("users")
@@ -580,7 +589,7 @@ async function loadLogForDate(date) {
     const user = auth.currentUser;
     if (!user) return;
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = getLocalDateString();
     const status = document.getElementById("logDateStatus");
     const returnBtn = document.getElementById("returnToTodayBtn");
 
@@ -608,13 +617,13 @@ async function loadLogForDate(date) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    const today = new Date().toISOString().split("T")[0];
+    const today = getLocalDateString();
     const dateInput = document.getElementById("logDate");
     if (dateInput) dateInput.value = today;
 });
 
 function returnToToday() {
-    const today = new Date().toISOString().split("T")[0];
+    const today = getLocalDateString();
     document.getElementById("logDate").value = today;
     loadLogForDate(today);
 }  
