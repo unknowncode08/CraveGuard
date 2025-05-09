@@ -200,14 +200,38 @@
 
                 <div id="goalDisplay" class="text-sm text-gray-700 text-center"></div>
             </div>
-            <div class="tab-content hidden" id="ai">
-                <h2 class="text-xl font-semibold">Ask CraveGuard AI</h2>
-                <textarea id="aiInput" class="w-full p-3 rounded-xl border border-gray-300 mt-3"
-                    placeholder="What should I eat for lunch?"></textarea>
-                <button onclick="askGemini()"
-                    class="mt-3 bg-blue-600 text-white px-5 py-2 rounded-xl shadow-md hover:bg-blue-700 transition">Ask
-                    AI</button>
-                <div id="aiOutput" class="mt-4 p-4 bg-gray-100 rounded-xl shadow-inner text-sm"></div>
+            <div id="ai" class="tab-content hidden p-4 space-y-4">
+                <h2 class="text-xl font-bold mb-2">CraveGuard AI Utilities</h2>
+
+                <div class="space-y-2">
+                    <select id="workoutType" class="w-full p-2 border rounded">
+                        <option value="Cardio">Cardio</option>
+                        <option value="Strength">Strength</option>
+                        <option value="Flexibility">Flexibility</option>
+                        <option value="HIIT">HIIT</option>
+                    </select>
+
+                    <select id="workoutLocation" class="w-full p-2 border rounded">
+                        <option value="Home">Home</option>
+                        <option value="Gym">Gym</option>
+                        <option value="Park">Park</option>
+                        <option value="Outside">Outside</option>
+                    </select>
+
+                    <input id="workoutDuration" type="number" placeholder="Workout Duration (minutes)"
+                        class="w-full p-2 border rounded" />
+
+                    <input id="workoutEquipment" type="text" placeholder="Available Equipment (or type 'none')"
+                        class="w-full p-2 border rounded mb-2" />
+
+                    <button onclick="generateWorkout()"
+                        class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                        Generate Workout with AI
+                    </button>
+                    <div id="aiLoading" class="text-sm text-gray-500 hidden">⏳ Generating workout...</div>
+                    <button onclick="loadWorkoutHistory()" class="text-blue-600 underline text-sm mt-2">View Past
+                        Workouts</button>
+                </div>
             </div>
             <div class="tab-content hidden" id="profile">
                 <h2 class="text-xl font-semibold mb-3">Your Info</h2>
@@ -334,6 +358,16 @@
                     class="px-4 py-2 border rounded text-gray-600 hover:bg-gray-100">Cancel</button>
                 <button id="editSaveBtn"
                     class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="workoutModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 w-11/12 max-w-2xl shadow-lg max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-bold mb-4">Your AI-Generated Workouts</h3>
+            <ul id="workoutList" class="space-y-4"></ul>
+            <div class="mt-6 text-right">
+                <button onclick="closeWorkoutModal()" class="text-blue-600 underline text-sm">Close</button>
             </div>
         </div>
     </div>

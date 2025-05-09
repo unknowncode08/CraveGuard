@@ -217,6 +217,13 @@ function renderMeals() {
     });
 }
 
+async function deleteWorkout(docId) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    await db.collection("users").doc(user.uid).collection("workouts").doc(docId).delete();
+    loadWorkoutHistory(); // Refresh list after delete
+}
 
 function openEditModal(entryIndex) {
     const item = foodLog[entryIndex];
@@ -593,6 +600,148 @@ function animateTextCount(id, targetVal, unit, over) {
             clearInterval(interval);
         }
     }, stepTime);
+}
+
+async function generateWorkout() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    document.getElementById("aiLoading").classList.remove("hidden");
+
+    const duration = parseInt(document.getElementById("workoutDuration").value) || 30;
+    const type = document.getElementById("workoutType").value;
+    const location = document.getElementById("workoutLocation").value;
+    const date = getLocalDateString();
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const userDoc = await db.collection("users").doc(user.uid).get();
+    const goal = userDoc.data()?.goal;
+
+    const foodLogDoc = await db.collection("users").doc(user.uid).collection("foodLogs").doc(date).get();
+    const foodLog = foodLogDoc.exists ? foodLogDoc.data().entries : [];
+
+    const summary = foodLog.map(f => `${f.name} - ${f.calories} kcal`).join("\n") || "No meals logged";
+
+    const equipment = document.getElementById("workoutEquipment").value.trim();
+
+    const prompt = `
+You are a fitness trainer. Create a ${duration}-minute ${type.toLowerCase()} workout for someone at the ${location} with equipment: ${equipment}, and goal: ${goal}.
+
+Use ONLY this format:
+Workout:
+- Title: [title of workout]
+- Duration: ${duration} minutes
+- Location: ${location}
+- Type: ${type}
+- Equipment: ${equipment}
+
+Exercises:
+1. [Exercise name] — [Sets] sets x [Reps/Time] — [Description or tips]
+...
+Meals today:
+${summary}
+Current time: ${now}
+`;
+
+
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyC1wlM7BygYivPTog2Qa7tzkmx-aijUPlY", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
+
+    const result = await response.json();
+    const text = result?.candidates?.[0]?.content?.parts?.[0]?.text || "AI failed to respond.";
+
+    const workout = {
+        text,
+        time: now,
+        date,
+        type,
+        duration,
+        location,
+        equipment
+    };
+
+    document.getElementById("aiLoading").classList.add("hidden");
+
+    await db.collection("users").doc(user.uid).collection("workouts").add(workout);
+    loadWorkoutHistory(); // Load & show
+}
+
+async function loadWorkoutHistory() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const snapshot = await db.collection("users")
+        .doc(user.uid)
+        .collection("workouts")
+        .orderBy("date", "desc")
+        .get();
+
+    const container = document.getElementById("workoutList");
+    container.innerHTML = "";
+
+    snapshot.forEach(doc => {
+        const w = doc.data();
+        const entry = document.createElement("li");
+        entry.className = "border p-3 rounded shadow-sm";
+
+        const parsed = parseWorkout(w.text);
+
+        entry.innerHTML = `
+  <div class="text-xs text-gray-500">${w.date} • ${w.time}</div>
+  <div class="font-semibold text-lg mb-1">${parsed.title}</div>
+  <div class="text-sm text-gray-700 mb-1">${parsed.type} • ${parsed.location} • ${parsed.duration} min</div>
+  <div class="text-xs text-gray-500 mb-2">Equipment: ${parsed.equipment}</div>
+  <ul class="text-sm space-y-1 pl-4 list-decimal mb-2">
+    ${parsed.exercises.map(ex => `<li><strong>${ex.name}</strong> — ${ex.sets} × ${ex.reps}<br><span class="text-gray-500">${ex.notes}</span></li>`).join('')}
+  </ul>
+  <div class="text-right">
+    <button onclick="deleteWorkout('${doc.id}')" class="text-red-500 text-xs underline">Delete</button>
+  </div>
+`;
+
+        container.appendChild(entry);
+    });
+
+    document.getElementById("workoutModal").classList.remove("hidden");
+}
+
+function parseWorkout(text) {
+    const titleMatch = text.match(/- Title:\s*(.*)/i);
+    const durationMatch = text.match(/- Duration:\s*(.*)/i);
+    const locationMatch = text.match(/- Location:\s*(.*)/i);
+    const typeMatch = text.match(/- Type:\s*(.*)/i);
+    const equipMatch = text.match(/- Equipment:\s*(.*)/i);
+
+    const exercises = [];
+    const lines = text.split("\n");
+    let start = lines.findIndex(l => l.trim().toLowerCase().startsWith("1."));
+    for (let i = start; i < lines.length; i++) {
+        const match = lines[i].match(/^\d+\.\s*(.*?)\s*—\s*(.*?)\s*x\s*(.*?)\s*—\s*(.*)/);
+        if (match) {
+            exercises.push({
+                name: match[1].trim(),
+                sets: match[2].trim(),
+                reps: match[3].trim(),
+                notes: match[4].trim()
+            });
+        }
+    }
+
+    return {
+        title: titleMatch?.[1]?.trim() || "Untitled",
+        duration: durationMatch?.[1]?.trim() || "?",
+        location: locationMatch?.[1]?.trim() || "?",
+        type: typeMatch?.[1]?.trim() || "?",
+        equipment: equipMatch?.[1]?.trim() || "?",
+        exercises
+    };
+}
+
+function closeWorkoutModal() {
+    document.getElementById("workoutModal").classList.add("hidden");
 }
 
 async function loadFiveDayTrend() {
