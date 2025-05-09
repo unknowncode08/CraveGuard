@@ -70,9 +70,6 @@ function enterApp(userData, name = "User") {
     document.getElementById("userSetup")?.remove();
     document.getElementById("loginScreen")?.remove();
 
-    document.getElementById("userGreeting").classList.remove("hidden");
-    document.getElementById("username").textContent = name;
-
     displayGoalSummary(userData);
     loadFiveDayTrend();
     loadUserProfile();
@@ -603,6 +600,18 @@ async function updateCalorieProgress() {
     updateRing("carb", totals.carbs, total.carbs);
     updateRing("fat", totals.fat, total.fat);
     updateRing("fiber", totals.fiber, total.fiber);
+
+    // Existing total goals and foodLog calculations...
+    document.getElementById("homeGoalCalories").textContent = total.calories;
+    document.getElementById("homeCurrentCalories").textContent = Math.round(totals.calories);
+
+    const percent = Math.min(100, (totals.calories / total.calories) * 100);
+    const offset = 282.74 - (282.74 * percent) / 100;
+    document.getElementById("homeCalorieCircle").style.strokeDashoffset = offset.toFixed(2);
+
+    const remaining = total.calories - totals.calories;
+    document.getElementById("homeCalorieText").textContent =
+        remaining >= 0 ? `${remaining} left` : `${Math.abs(remaining)} over`;
 }
 
 const ringConfig = {
