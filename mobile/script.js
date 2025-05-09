@@ -179,25 +179,151 @@ const meals = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
 let foodLog = [];
 
 function renderMeals() {
-    const container = document.getElementById('meal-sections');
-    container.innerHTML = '';
+    const container = document.getElementById("meal-sections");
+    container.innerHTML = "";
+
+    const meals = ["Breakfast", "Lunch", "Dinner", "Snacks"];
     meals.forEach(meal => {
         const entries = foodLog.filter(f => f.meal === meal);
-        const mealHTML = `
-      <div class="bg-white rounded-xl p-4 shadow">
-        <h3 class="text-lg font-bold mb-2">${meal}</h3>
-        ${entries.length === 0
-                ? `<p class="text-gray-400">No items yet</p>`
-                : entries.map(item => `
-            <div class="flex justify-between items-center border-b py-1 text-sm">
-              <span>${item.name}</span>
-              <span class="text-gray-500">${item.calories} kcal</span>
-            </div>
-          `).join('')}
-      </div>
-    `;
-        container.innerHTML += mealHTML;
+        if (entries.length === 0) return;
+
+        const section = document.createElement("div");
+        section.className = "mb-4";
+
+        const heading = document.createElement("h3");
+        heading.textContent = meal;
+        heading.className = "font-semibold text-gray-700 mb-2";
+        section.appendChild(heading);
+
+        entries.forEach((item, index) => {
+            const realIndex = foodLog.indexOf(item);
+            const entry = document.createElement("div");
+            entry.className = "flex justify-between items-center p-2 border-b";
+
+            entry.innerHTML = `
+          <div>
+            <div class="font-medium">${item.name}</div>
+            <div class="text-sm text-gray-500">${item.calories} kcal</div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="openEditModal(${realIndex})" class="text-blue-600 text-xs underline">Edit</button>
+            <button onclick="deleteFood(${realIndex})" class="text-red-600 text-xs underline">Delete</button>
+          </div>
+        `;
+            section.appendChild(entry);
+        });
+
+        container.appendChild(section);
     });
+}
+
+
+function openEditModal(entryIndex) {
+    const item = foodLog[entryIndex];
+    document.getElementById("editModal").classList.remove("hidden");
+
+    document.getElementById("editName").value = item.name;
+    document.getElementById("editCalories").value = item.calories || "";
+    document.getElementById("editProtein").value = item.protein || "";
+    document.getElementById("editCarbs").value = item.carbs || "";
+    document.getElementById("editFat").value = item.fat || "";
+    document.getElementById("editFiber").value = item.fiber || "";
+    document.getElementById("editMeal").value = item.meal;
+
+    document.getElementById("editSaveBtn").onclick = async () => {
+        const updated = {
+            name: document.getElementById("editName").value.trim(),
+            calories: parseFloat(document.getElementById("editCalories").value),
+            protein: parseFloat(document.getElementById("editProtein").value || 0),
+            carbs: parseFloat(document.getElementById("editCarbs").value || 0),
+            fat: parseFloat(document.getElementById("editFat").value || 0),
+            fiber: parseFloat(document.getElementById("editFiber").value || 0),
+            meal: document.getElementById("editMeal").value,
+            timestamp: new Date().toISOString()
+        };
+
+        foodLog[entryIndex] = updated;
+
+        const user = auth.currentUser;
+        const date = document.getElementById("logDate").value;
+
+        await db.collection("users")
+            .doc(user.uid)
+            .collection("foodLogs")
+            .doc(date)
+            .set({ entries: foodLog, date });
+
+        closeEditModal();
+        renderMeals();
+        updateCalorieProgress();
+        loadFiveDayTrend();
+    };
+}
+
+function closeEditModal() {
+    document.getElementById("editModal").classList.add("hidden");
+}
+
+async function deleteFood(index) {
+    const user = auth.currentUser;
+    const date = document.getElementById("logDate").value;
+
+    if (!user || !date) return;
+
+    foodLog.splice(index, 1);
+
+    await db.collection("users")
+        .doc(user.uid)
+        .collection("foodLogs")
+        .doc(date)
+        .set({ entries: foodLog, date });
+
+    renderMeals();
+    updateCalorieProgress();
+}
+
+function editFood(index) {
+    const item = foodLog[index];
+
+    // Open modal with item data pre-filled
+    document.getElementById("foodName").value = item.name;
+    document.getElementById("foodCalories").value = item.calories;
+    document.getElementById("foodProtein").value = item.protein || "";
+    document.getElementById("foodCarbs").value = item.carbs || "";
+    document.getElementById("foodFat").value = item.fat || "";
+    document.getElementById("foodFiber").value = item.fiber || "";
+    document.getElementById("mealSelect").value = item.meal;
+
+    openFoodModal();
+
+    // On save, replace the original entry
+    document.getElementById("saveFoodBtn").onclick = async () => {
+        const updated = {
+            name: document.getElementById("foodName").value.trim(),
+            calories: parseFloat(document.getElementById("foodCalories").value),
+            protein: parseFloat(document.getElementById("foodProtein").value || 0),
+            carbs: parseFloat(document.getElementById("foodCarbs").value || 0),
+            fat: parseFloat(document.getElementById("foodFat").value || 0),
+            fiber: parseFloat(document.getElementById("foodFiber").value || 0),
+            meal: document.getElementById("mealSelect").value,
+            timestamp: new Date().toISOString()
+        };
+
+        foodLog[index] = updated;
+
+        const user = auth.currentUser;
+        const date = document.getElementById("logDate").value;
+
+        await db.collection("users")
+            .doc(user.uid)
+            .collection("foodLogs")
+            .doc(date)
+            .set({ entries: foodLog, date });
+
+        closeFoodModal();
+        renderMeals();
+        updateCalorieProgress();
+    };
 }
 
 function addFood() {
@@ -381,8 +507,14 @@ function displayGoalSummary(data) {
     `;
 }
 
-function updateCalorieProgress() {
-    const data = JSON.parse(localStorage.getItem("craveguard_user"));
+async function updateCalorieProgress() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const userDoc = await db.collection("users").doc(user.uid).get();
+    if (!userDoc.exists) return;
+
+    const data = userDoc.data(); // contains user goals
     if (!data) return;
 
     const total = {
@@ -394,6 +526,8 @@ function updateCalorieProgress() {
     };
 
     const todayLog = foodLog.filter(f => isToday(f.timestamp));
+
+    console.log(todayLog);
 
     const totals = {
         calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0
@@ -509,61 +643,99 @@ async function loadFiveDayTrend() {
 
 let trendChart;
 
-function drawTrendChart(labels, data) {
-    const ctx = document.getElementById("trendChart").getContext("2d");
-    if (trendChart) trendChart.destroy();
+async function loadFiveDayTrend() {
+    const user = auth.currentUser;
+    if (!user) return;
 
-    trendChart = new Chart(ctx, {
+    const labels = [];
+    const metrics = {
+        calories: [],
+        protein: [],
+        carbs: [],
+        fat: [],
+        fiber: []
+    };
+
+    for (let i = 4; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = getLocalDateStringFromDate(d);
+        labels.push(dateStr.slice(5)); // MM-DD
+
+        const doc = await db.collection("users")
+            .doc(user.uid)
+            .collection("foodLogs")
+            .doc(dateStr)
+            .get();
+
+        let daily = { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 };
+
+        if (doc.exists) {
+            const entries = doc.data().entries || [];
+            for (const e of entries) {
+                daily.calories += e.calories || 0;
+                daily.protein += e.protein || 0;
+                daily.carbs += e.carbs || 0;
+                daily.fat += e.fat || 0;
+                daily.fiber += e.fiber || 0;
+            }
+        }
+
+        for (let key in metrics) {
+            metrics[key].push(daily[key]);
+        }
+    }
+
+    drawSingleLineChart("chartCalories", labels, metrics.calories, "#4ade80", "kcal");
+    drawSingleLineChart("chartProtein", labels, metrics.protein, "#3b82f6", "g");
+    drawSingleLineChart("chartCarbs", labels, metrics.carbs, "#f59e0b", "g");
+    drawSingleLineChart("chartFat", labels, metrics.fat, "#ef4444", "g");
+    drawSingleLineChart("chartFiber", labels, metrics.fiber, "#10b981", "g");
+}
+
+function drawSingleLineChart(canvasId, labels, data, color, unit) {
+    const ctx = document.getElementById(canvasId).getContext("2d");
+    new Chart(ctx, {
         type: 'line',
         data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Calories',
-                    data: data.calories,
-                    borderColor: '#4ade80',
-                    fill: false
-                },
-                {
-                    label: 'Protein',
-                    data: data.protein,
-                    borderColor: '#3b82f6',
-                    fill: false
-                },
-                {
-                    label: 'Carbs',
-                    data: data.carbs,
-                    borderColor: '#f59e0b',
-                    fill: false
-                },
-                {
-                    label: 'Fat',
-                    data: data.fat,
-                    borderColor: '#ef4444',
-                    fill: false
-                },
-                {
-                    label: 'Fiber',
-                    data: data.fiber,
-                    borderColor: '#10b981',
-                    fill: false
-                }
-            ]
+            labels,
+            datasets: [{
+                data,
+                borderColor: color,
+                backgroundColor: color + "33", // subtle fill
+                fill: true,
+                tension: 0.3,
+                pointRadius: 4
+            }]
         },
         options: {
             responsive: true,
             plugins: {
-                legend: {
-                    position: 'top'
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: context => `${context.raw} ${unit}`
+                    }
                 }
             },
             scales: {
+                x: {
+                    ticks: { color: '#555', font: { size: 11 } }
+                },
                 y: {
+                    ticks: { color: '#777', font: { size: 10 } },
                     beginAtZero: true
                 }
             }
         }
     });
+}
+
+function getLocalDateStringFromDate(dateObj) {
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const day = String(dateObj.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`; // Format: YYYY-MM-DD
 }
 
 function capitalize(str) {
@@ -572,9 +744,8 @@ function capitalize(str) {
 
 // Helper: Check if a log is from today
 function isToday(timestamp) {
-    const now = new Date();
-    const logDate = new Date(timestamp);
-    return now.toDateString() === logDate.toDateString();
+    const now = getLocalDateString();
+    return now === timestamp;
 }
 
 // Load saved data on page load
