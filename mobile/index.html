@@ -233,42 +233,41 @@
                         Workouts</button>
                 </div>
             </div>
-            <div class="tab-content hidden" id="profile">
-                <h2 class="text-xl font-semibold mb-3">Your Info</h2>
-                <div class="space-y-2">
-                    <input id="userAge" type="number" placeholder="Age" class="w-full p-2 border rounded-lg">
-                    <input id="userWeight" type="number" placeholder="Weight (lbs)"
-                        class="w-full p-2 border rounded-lg">
-                    <input id="userHeight" type="number" placeholder="Height (inches)"
-                        class="w-full p-2 border rounded-lg">
-
-                    <select id="userSex" class="w-full p-2 border rounded-lg">
-                        <option value="" disabled selected>Sex</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                    </select>
-
-                    <select id="userActivity" class="w-full p-2 border rounded-lg">
-                        <option value="" disabled selected>Activity Level</option>
-                        <option value="1.2">Sedentary</option>
-                        <option value="1.375">Lightly active</option>
-                        <option value="1.55">Moderately active</option>
-                        <option value="1.725">Very active</option>
-                    </select>
-
-                    <select id="userGoal" class="w-full p-2 border rounded-lg">
-                        <option value="" disabled selected>Goal</option>
-                        <option value="lose">Lose Weight</option>
-                        <option value="maintain">Maintain</option>
-                        <option value="gain">Gain Muscle</option>
-                    </select>
-
-                    <button onclick="saveUserInfo()"
-                        class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Save &
-                        Calculate</button>
-                    <div id="goalDisplay" class="mt-4 text-sm text-gray-700"></div>
-                </div>
-            </div>
+            <div id="profile" class="tab-content hidden p-4 space-y-4">
+                <h2 class="text-xl font-bold">Your Profile</h2>
+              
+                <div><strong>Email:</strong> <span id="userEmail">Loading...</span></div>
+              
+                <input id="profileAge" type="number" placeholder="Age" class="w-full p-2 border rounded" />
+                <input id="profileWeight" type="number" placeholder="Weight (lbs)" class="w-full p-2 border rounded" />
+                <input id="profileHeight" type="number" placeholder="Height (inches)" class="w-full p-2 border rounded" />
+              
+                <select id="profileSex" class="w-full p-2 border rounded">
+                  <option value="">Select Sex</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              
+                <select id="profileActivity" class="w-full p-2 border rounded">
+                  <option value="">Activity Level</option>
+                  <option value="1.2">Sedentary</option>
+                  <option value="1.375">Light</option>
+                  <option value="1.55">Moderate</option>
+                  <option value="1.725">Active</option>
+                  <option value="1.9">Very Active</option>
+                </select>
+              
+                <select id="profileGoal" class="w-full p-2 border rounded">
+                  <option value="">Goal</option>
+                  <option value="lose">Lose Weight</option>
+                  <option value="maintain">Maintain</option>
+                  <option value="gain">Gain Muscle</option>
+                </select>
+              
+                <button onclick="saveProfile()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                  Save Changes
+                </button>
+              </div>              
         </div>
 
         <!-- Bottom Navbar -->
@@ -305,8 +304,9 @@
             <button onclick="closeFoodModal()" class="absolute top-2 right-3 text-gray-500 text-xl">&times;</button>
             <h3 class="text-lg font-semibold">Add Food</h3>
 
-            <input id="foodSearch" type="text" class="w-full p-2 border rounded-lg"
-                placeholder="Search or describe food...">
+            <input type="file" id="foodImage" accept="image/*" class="w-full mb-2" />
+
+            <input id="foodSearch" type="text" class="w-full p-2 border rounded-lg" placeholder="Describe your food...">
 
 
             <select id="mealSelect" class="w-full p-2 border rounded-lg">

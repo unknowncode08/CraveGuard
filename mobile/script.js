@@ -1,3 +1,6 @@
+let chartCalories, chartProtein, chartCarbs, chartFat, chartFiber;
+const chartRegistry = {};
+
 // Initialize Firebase
 firebaseConfig = {
     apiKey: "AIzaSyA9OshCFN-q6g2hRtWstRaVMNP6JZROXfQ",
@@ -72,6 +75,7 @@ function enterApp(userData, name = "User") {
 
     displayGoalSummary(userData);
     loadFiveDayTrend();
+    loadUserProfile();
 }
 
 function signOut() {
@@ -201,8 +205,9 @@ function renderMeals() {
             entry.className = "flex justify-between items-center p-2 border-b";
 
             entry.innerHTML = `
-          <div>
-            <div class="font-medium">${item.name}</div>
+          <div class="flex items-center gap-2">
+  ${item.imageData ? `<img src="${item.imageData}" class="w-10 h-10 rounded object-cover">` : ""}
+  <span class="font-medium">${item.name}</span>
             <div class="text-sm text-gray-500">${item.calories} kcal</div>
           </div>
           <div class="flex gap-2">
@@ -369,6 +374,10 @@ async function getNutrition() {
         return;
     }
 
+    const caption = document.getElementById("foodName").value.trim();
+    const file = document.getElementById("foodImage").files[0];
+    const base64Image = file ? await toBase64(file) : null;
+
     output.textContent = "CraveGuard AI is thinking...";
     document.getElementById("nutritionFields").classList.remove("hidden");
 
@@ -403,11 +412,11 @@ async function getNutrition() {
         };
 
         document.getElementById("foodName").value = getVal("food") || desc;
-        document.getElementById("foodCalories").value = parseInt(getVal("calories")) || '';
-        document.getElementById("foodProtein").value = parseFloat(getVal("protein")) || '';
-        document.getElementById("foodCarbs").value = parseFloat(getVal("carbs")) || '';
-        document.getElementById("foodFat").value = parseFloat(getVal("fat")) || '';
-        document.getElementById("foodFiber").value = parseFloat(getVal("fiber")) || '';
+        document.getElementById("foodCalories").value = parseInt(getVal("calories")) || 0;
+        document.getElementById("foodProtein").value = parseFloat(getVal("protein")) || 0;
+        document.getElementById("foodCarbs").value = parseFloat(getVal("carbs")) || 0;
+        document.getElementById("foodFat").value = parseFloat(getVal("fat")) || 0;
+        document.getElementById("foodFiber").value = parseFloat(getVal("fiber")) || 0;
 
         output.textContent = "";
     } catch (err) {
@@ -418,43 +427,84 @@ async function getNutrition() {
 
 async function saveFood() {
     const name = document.getElementById("foodName").value.trim();
-    const calories = parseInt(document.getElementById("foodCalories").value, 10);
+    const calories = parseFloat(document.getElementById("foodCalories").value);
+    const protein = parseFloat(document.getElementById("foodProtein").value || 0);
+    const carbs = parseFloat(document.getElementById("foodCarbs").value || 0);
+    const fat = parseFloat(document.getElementById("foodFat").value || 0);
+    const fiber = parseFloat(document.getElementById("foodFiber")?.value || 0);
     const meal = document.getElementById("mealSelect").value;
+    const fileInput = document.getElementById("foodImage");
+    const file = fileInput.files[0];
     const user = auth.currentUser;
+    const date = getLocalDateString();
 
-    if (!user || !name || isNaN(calories)) {
-        document.getElementById("foodError").textContent = "Please fill in the required fields.";
-        return;
+    if (!user || !name || isNaN(calories)) return;
+
+    let imageData = null;
+
+    if (file) {
+        imageData = await toBase64(file);
     }
 
-    const dateKey = getLocalDateString();    // 'YYYY-MM-DD'
     const entry = {
         name,
+        calories,
+        protein,
+        carbs,
+        fat,
+        fiber,
         meal,
-        calories: parseFloat(document.getElementById("foodCalories").value),
-        protein: parseFloat(document.getElementById("foodProtein").value),
-        carbs: parseFloat(document.getElementById("foodCarbs").value),
-        fat: parseFloat(document.getElementById("foodFat").value),
-        fiber: parseFloat(document.getElementById("foodFiber")?.value || 0),
-        timestamp: getLocalDateString()
+        imageData,
+        timestamp: new Date().toISOString()
     };
 
-    // Update local log
     foodLog.push(entry);
 
-    // Update Firestore
-    const logRef = db.collection("users").doc(user.uid).collection("foodLogs").doc(dateKey);
-    const docSnap = await logRef.get();
-    const existing = docSnap.exists ? docSnap.data().entries || [] : [];
-
-    await logRef.set({
-        date: dateKey,
-        entries: [...existing, entry]
-    });
+    await db.collection("users").doc(user.uid)
+        .collection("foodLogs").doc(date)
+        .set({ entries: foodLog, date });
 
     renderMeals();
     updateCalorieProgress();
+    loadFiveDayTrend();
     closeFoodModal();
+}
+
+async function toBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                const maxDim = 400; // Resize to max width/height
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxDim) {
+                        height *= maxDim / width;
+                        width = maxDim;
+                    }
+                } else {
+                    if (height > maxDim) {
+                        width *= maxDim / height;
+                        height = maxDim;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL("image/jpeg", 0.8)); // JPEG to compress
+            };
+            img.onerror = reject;
+            img.src = reader.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 }
 
 function saveUserInfo() {
@@ -843,15 +893,23 @@ async function loadFiveDayTrend() {
 }
 
 function drawSingleLineChart(canvasId, labels, data, color, unit) {
-    const ctx = document.getElementById(canvasId).getContext("2d");
-    new Chart(ctx, {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext("2d");
+
+    // Destroy previous chart if exists
+    if (chartRegistry[canvasId] && typeof chartRegistry[canvasId].destroy === "function") {
+        chartRegistry[canvasId].destroy();
+    }
+
+    // Create new chart and save it to registry
+    chartRegistry[canvasId] = new Chart(ctx, {
         type: 'line',
         data: {
             labels,
             datasets: [{
                 data,
                 borderColor: color,
-                backgroundColor: color + "33", // subtle fill
+                backgroundColor: color + "33",
                 fill: true,
                 tension: 0.3,
                 pointRadius: 4
@@ -880,6 +938,25 @@ function drawSingleLineChart(canvasId, labels, data, color, unit) {
     });
 }
 
+async function loadUserProfile() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    document.getElementById("userEmail").textContent = user.email;
+
+    const doc = await db.collection("users").doc(user.uid).get();
+    if (!doc.exists) return;
+
+    const data = doc.data();
+
+    document.getElementById("profileAge").value = data.age;
+    document.getElementById("profileWeight").value = data.weight;
+    document.getElementById("profileHeight").value = data.height;
+    document.getElementById("profileSex").value = data.sex;
+    document.getElementById("profileActivity").value = data.activity;
+    document.getElementById("profileGoal").value = data.goal;
+}
+
 function getLocalDateStringFromDate(dateObj) {
     const year = dateObj.getFullYear();
     const month = String(dateObj.getMonth() + 1).padStart(2, "0");
@@ -894,7 +971,7 @@ function capitalize(str) {
 // Helper: Check if a log is from today
 function isToday(timestamp) {
     const now = getLocalDateString();
-    return now === timestamp;
+    return now === timestamp.split('T')[0];
 }
 
 // Load saved data on page load
@@ -946,4 +1023,29 @@ function returnToToday() {
     const today = getLocalDateString();
     document.getElementById("logDate").value = today;
     loadLogForDate(today);
+}
+
+async function saveProfile() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const age = parseInt(document.getElementById("profileAge").value);
+    const weight = parseFloat(document.getElementById("profileWeight").value);
+    const height = parseFloat(document.getElementById("profileHeight").value);
+    const sex = document.getElementById("profileSex").value;
+    const activity = parseFloat(document.getElementById("profileActivity").value);
+    const goal = document.getElementById("profileGoal").value;
+
+    if (!age || !weight || !height || !sex || !activity || !goal) {
+        alert("Please complete all fields.");
+        return;
+    }
+
+    const userData = calculateGoals({ age, weight, height, sex, activity, goal });
+
+    await db.collection("users").doc(user.uid).set(userData);
+
+    alert("Profile updated!");
+    updateCalorieProgress();
+    loadFiveDayTrend();
 }  
