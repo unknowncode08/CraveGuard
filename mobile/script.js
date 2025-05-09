@@ -74,6 +74,113 @@ function enterApp(userData, name = "User") {
     loadFiveDayTrend();
     loadUserProfile();
     loadDailyStats();
+    loadWeightTrend();
+    loadStepsTrend();
+}
+
+function openWeightModal() {
+    document.getElementById("weightModal").classList.remove("hidden");
+    document.getElementById("weightInput").value = "";
+}
+
+function closeWeightModal() {
+    document.getElementById("weightModal").classList.add("hidden");
+}
+
+async function saveWeight() {
+    const user = auth.currentUser;
+    const date = getLocalDateString();
+    const weight = parseFloat(document.getElementById("weightInput").value);
+    if (!user || isNaN(weight)) return;
+
+    await db.collection("users").doc(user.uid)
+        .collection("dailyStats").doc(date)
+        .set({ weight }, { merge: true });
+
+    closeWeightModal();
+    loadWeightTrend();
+}
+
+async function loadWeightTrend() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const dates = [];
+    const weights = [];
+
+    for (let i = 89; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = getLocalDateStringFromDate(d);
+        const doc = await db.collection("users").doc(user.uid)
+            .collection("dailyStats").doc(dateStr).get();
+        dates.push(dateStr.slice(5));
+        weights.push(doc.exists && doc.data().weight ? doc.data().weight : null);
+    }
+
+    if (chartRegistry["weightChart"]) chartRegistry["weightChart"].destroy();
+
+    chartRegistry["weightChart"] = new Chart(document.getElementById("weightChart").getContext("2d"), {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                data: weights,
+                label: "Weight (lbs)",
+                borderColor: "#6366f1",
+                backgroundColor: "#6366f155",
+                fill: true,
+                spanGaps: true,
+                tension: 0.3,
+                pointRadius: 3
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: false } }
+        }
+    });
+}
+
+async function loadStepsTrend() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const dates = [];
+    const steps = [];
+
+    for (let i = 89; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = getLocalDateStringFromDate(d);
+        const doc = await db.collection("users").doc(user.uid)
+            .collection("dailyStats").doc(dateStr).get();
+        dates.push(dateStr.slice(5));
+        steps.push(doc.exists && doc.data().steps ? doc.data().steps : null);
+    }
+
+    if (chartRegistry["stepsChart"]) chartRegistry["stepsChart"].destroy();
+
+    chartRegistry["stepsChart"] = new Chart(document.getElementById("stepsChart").getContext("2d"), {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                data: steps,
+                label: "Steps",
+                borderColor: "#06b6d4",
+                backgroundColor: "#06b6d433",
+                fill: true,
+                spanGaps: true,
+                tension: 0.3,
+                pointRadius: 3
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
 }
 
 function signOut() {
@@ -716,21 +823,21 @@ let currentSteps = 0;
 let currentExercise = { calories: 0, minutes: 0 };
 
 async function loadDailyStats() {
-  const user = auth.currentUser;
-  const date = getLocalDateString();
-  if (!user) return;
+    const user = auth.currentUser;
+    const date = getLocalDateString();
+    if (!user) return;
 
-  const doc = await db.collection("users").doc(user.uid)
-    .collection("dailyStats").doc(date).get();
+    const doc = await db.collection("users").doc(user.uid)
+        .collection("dailyStats").doc(date).get();
 
-  const data = doc.exists ? doc.data() : {};
+    const data = doc.exists ? doc.data() : {};
 
-  currentSteps = data.steps || 0;
-  currentExercise = data.exercise || { calories: 0, minutes: 0 };
+    currentSteps = data.steps || 0;
+    currentExercise = data.exercise || { calories: 0, minutes: 0 };
 
-  document.getElementById("stepCount").textContent = currentSteps;
-  document.getElementById("exerciseCals").textContent = currentExercise.calories;
-  document.getElementById("exerciseTime").textContent = currentExercise.minutes;
+    document.getElementById("stepCount").textContent = currentSteps;
+    document.getElementById("exerciseCals").textContent = currentExercise.calories;
+    document.getElementById("exerciseTime").textContent = currentExercise.minutes;
 }
 
 async function generateWorkout() {

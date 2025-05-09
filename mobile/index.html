@@ -112,6 +112,22 @@
                         </div>
                     </div>
                 </div>
+                <div class="overflow-x-auto py-2">
+                    <div class="flex gap-4 w-[200%] min-w-full px-2">
+                        <!-- Weight Chart Card -->
+                        <div onclick="openWeightModal()"
+                            class="bg-white w-[90vw] max-w-[400px] rounded-xl shadow p-4 flex-shrink-0 cursor-pointer hover:bg-gray-50">
+                            <h3 class="font-semibold text-sm mb-2">Weight Trend (90 days)</h3>
+                            <canvas id="weightChart" height="140"></canvas>
+                        </div>
+
+                        <!-- Steps Chart Card -->
+                        <div class="bg-white w-[90vw] max-w-[400px] rounded-xl shadow p-4 flex-shrink-0">
+                            <h3 class="font-semibold text-sm mb-2">Steps Trend (90 days)</h3>
+                            <canvas id="stepsChart" height="140"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="tab-content hidden" id="track">
                 <h2 class="text-xl font-semibold mb-2">Track Your Food</h2>
@@ -421,7 +437,8 @@
         <div class="bg-white p-6 rounded-xl w-80 shadow-lg">
             <h3 class="text-lg font-bold mb-4">Edit Step Count</h3>
             <input id="stepsInput" type="number" placeholder="Steps walked" class="w-full p-2 border rounded mb-4" />
-            <div class="text-right">
+            <div class="flex justify-between">
+                <button onclick="closeModals()" class="text-gray-500 text-sm">Cancel</button>
                 <button onclick="saveSteps()" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
             </div>
         </div>
@@ -435,8 +452,20 @@
                 class="w-full p-2 border rounded mb-2" />
             <input id="exerciseMinutesInput" type="number" placeholder="Minutes exercised"
                 class="w-full p-2 border rounded mb-4" />
-            <div class="text-right">
+            <div class="flex justify-between">
+                <button onclick="closeModals()" class="text-gray-500 text-sm">Cancel</button>
                 <button onclick="saveExercise()" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="weightModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-6 rounded-xl w-80 shadow-lg">
+            <h3 class="text-lg font-bold mb-4">Log Your Weight</h3>
+            <input id="weightInput" type="number" placeholder="Weight (lbs)" class="w-full p-2 border rounded mb-4" />
+            <div class="flex justify-between">
+                <button onclick="closeWeightModal()" class="text-gray-500 text-sm">Cancel</button>
+                <button onclick="saveWeight()" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
             </div>
         </div>
     </div>
