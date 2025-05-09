@@ -89,6 +89,29 @@
                         <div><strong>Current Calories:</strong> <span id="homeCurrentCalories">0</span></div>
                     </div>
                 </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <!-- Steps Card -->
+                    <div onclick="openStepsModal()"
+                        class="bg-white shadow rounded-xl p-4 flex items-center cursor-pointer hover:bg-gray-50">
+                        <div class="text-2xl mr-3">👟</div>
+                        <div>
+                            <div class="text-xs text-gray-500">Steps</div>
+                            <div id="stepCount" class="text-lg font-semibold">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Exercise Card -->
+                    <div onclick="openExerciseModal()"
+                        class="bg-white shadow rounded-xl p-4 flex items-center cursor-pointer hover:bg-gray-50">
+                        <div class="text-2xl mr-3">🔥</div>
+                        <div>
+                            <div class="text-xs text-gray-500">Exercise</div>
+                            <div id="exerciseStats" class="text-sm">
+                                <span id="exerciseCals">0</span> kcal • <span id="exerciseTime">0</span> min
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="tab-content hidden" id="track">
                 <h2 class="text-xl font-semibold mb-2">Track Your Food</h2>
@@ -389,6 +412,31 @@
             <ul id="workoutList" class="space-y-4"></ul>
             <div class="mt-6 text-right">
                 <button onclick="closeWorkoutModal()" class="text-blue-600 underline text-sm">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Steps Modal -->
+    <div id="stepsModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-6 rounded-xl w-80 shadow-lg">
+            <h3 class="text-lg font-bold mb-4">Edit Step Count</h3>
+            <input id="stepsInput" type="number" placeholder="Steps walked" class="w-full p-2 border rounded mb-4" />
+            <div class="text-right">
+                <button onclick="saveSteps()" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exercise Modal -->
+    <div id="exerciseModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-6 rounded-xl w-80 shadow-lg">
+            <h3 class="text-lg font-bold mb-4">Edit Exercise</h3>
+            <input id="exerciseCaloriesInput" type="number" placeholder="Calories burned"
+                class="w-full p-2 border rounded mb-2" />
+            <input id="exerciseMinutesInput" type="number" placeholder="Minutes exercised"
+                class="w-full p-2 border rounded mb-4" />
+            <div class="text-right">
+                <button onclick="saveExercise()" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
             </div>
         </div>
     </div>

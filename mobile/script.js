@@ -73,6 +73,7 @@ function enterApp(userData, name = "User") {
     displayGoalSummary(userData);
     loadFiveDayTrend();
     loadUserProfile();
+    loadDailyStats();
 }
 
 function signOut() {
@@ -659,6 +660,77 @@ function animateTextCount(id, targetVal, unit, over) {
             clearInterval(interval);
         }
     }, stepTime);
+}
+
+function openStepsModal() {
+    document.getElementById("stepsModal").classList.remove("hidden");
+    document.getElementById("stepsInput").value = currentSteps || "";
+}
+
+function openExerciseModal() {
+    document.getElementById("exerciseModal").classList.remove("hidden");
+    document.getElementById("exerciseCaloriesInput").value = currentExercise?.calories || "";
+    document.getElementById("exerciseMinutesInput").value = currentExercise?.minutes || "";
+}
+
+function closeModals() {
+    document.getElementById("stepsModal").classList.add("hidden");
+    document.getElementById("exerciseModal").classList.add("hidden");
+}
+
+async function saveSteps() {
+    const user = auth.currentUser;
+    const date = getLocalDateString();
+    const steps = parseInt(document.getElementById("stepsInput").value);
+
+    if (!user || isNaN(steps)) return;
+
+    await db.collection("users").doc(user.uid)
+        .collection("dailyStats").doc(date)
+        .set({ steps }, { merge: true });
+
+    currentSteps = steps;
+    document.getElementById("stepCount").textContent = steps;
+    closeModals();
+}
+
+async function saveExercise() {
+    const user = auth.currentUser;
+    const date = getLocalDateString();
+    const calories = parseInt(document.getElementById("exerciseCaloriesInput").value);
+    const minutes = parseInt(document.getElementById("exerciseMinutesInput").value);
+
+    if (!user || isNaN(calories) || isNaN(minutes)) return;
+
+    await db.collection("users").doc(user.uid)
+        .collection("dailyStats").doc(date)
+        .set({ exercise: { calories, minutes } }, { merge: true });
+
+    currentExercise = { calories, minutes };
+    document.getElementById("exerciseCals").textContent = calories;
+    document.getElementById("exerciseTime").textContent = minutes;
+    closeModals();
+}
+
+let currentSteps = 0;
+let currentExercise = { calories: 0, minutes: 0 };
+
+async function loadDailyStats() {
+  const user = auth.currentUser;
+  const date = getLocalDateString();
+  if (!user) return;
+
+  const doc = await db.collection("users").doc(user.uid)
+    .collection("dailyStats").doc(date).get();
+
+  const data = doc.exists ? doc.data() : {};
+
+  currentSteps = data.steps || 0;
+  currentExercise = data.exercise || { calories: 0, minutes: 0 };
+
+  document.getElementById("stepCount").textContent = currentSteps;
+  document.getElementById("exerciseCals").textContent = currentExercise.calories;
+  document.getElementById("exerciseTime").textContent = currentExercise.minutes;
 }
 
 async function generateWorkout() {
