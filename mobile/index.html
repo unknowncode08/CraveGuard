@@ -68,7 +68,7 @@
                 <h1 class="text-2xl font-semibold">Welcome to <span class="text-blue-600">CraveGuard</span></h1>
                 <p class="text-gray-600">Track. Optimize. Conquer your cravings—completely free with AI power.</p>
 
-                <div class="bg-white shadow rounded-xl p-4 flex items-center justify-between mb-4">
+                <div class="bg-white shadow rounded-xl p-4 flex items-center justify-between mb-4 mt-4">
                     <!-- Calorie Wheel -->
                     <div class="relative w-24 h-24">
                         <svg class="absolute top-0 left-0 w-full h-full" viewBox="0 0 100 100">
@@ -112,18 +112,26 @@
                         </div>
                     </div>
                 </div>
-                <div class="overflow-x-auto py-2">
+                <div class="overflow-x-auto snap-x snap-mandatory py-2">
                     <div class="flex gap-4 w-[200%] min-w-full px-2">
                         <!-- Weight Chart Card -->
                         <div onclick="openWeightModal()"
-                            class="bg-white w-[90vw] max-w-[400px] rounded-xl shadow p-4 flex-shrink-0 cursor-pointer hover:bg-gray-50">
+                            class="bg-white w-[80vw] max-w-[400px] rounded-xl shadow p-4 flex-shrink-0 cursor-pointer snap-start hover:bg-gray-50">
                             <h3 class="font-semibold text-sm mb-2">Weight Trend (90 days)</h3>
+                            <div id="weightLoading"
+                                class="absolute inset-0 flex items-center justify-center bg-white z-10 text-sm text-gray-500">
+                                Loading...
+                            </div>
                             <canvas id="weightChart" height="140"></canvas>
                         </div>
 
                         <!-- Steps Chart Card -->
-                        <div class="bg-white w-[90vw] max-w-[400px] rounded-xl shadow p-4 flex-shrink-0">
+                        <div class="bg-white w-[80vw] max-w-[400px] rounded-xl shadow p-4 flex-shrink-0 snap-start">
                             <h3 class="font-semibold text-sm mb-2">Steps Trend (90 days)</h3>
+                            <div id="stepsLoading"
+                                class="absolute inset-0 flex items-center justify-center bg-white z-10 text-sm text-gray-500">
+                                Loading...
+                            </div>
                             <canvas id="stepsChart" height="140"></canvas>
                         </div>
                     </div>
@@ -259,36 +267,6 @@
             </div>
             <div id="ai" class="tab-content hidden p-4 space-y-4">
                 <h2 class="text-xl font-bold mb-2">CraveGuard AI Utilities</h2>
-
-                <div class="space-y-2">
-                    <select id="workoutType" class="w-full p-2 border rounded">
-                        <option value="Cardio">Cardio</option>
-                        <option value="Strength">Strength</option>
-                        <option value="Flexibility">Flexibility</option>
-                        <option value="HIIT">HIIT</option>
-                    </select>
-
-                    <select id="workoutLocation" class="w-full p-2 border rounded">
-                        <option value="Home">Home</option>
-                        <option value="Gym">Gym</option>
-                        <option value="Park">Park</option>
-                        <option value="Outside">Outside</option>
-                    </select>
-
-                    <input id="workoutDuration" type="number" placeholder="Workout Duration (minutes)"
-                        class="w-full p-2 border rounded" />
-
-                    <input id="workoutEquipment" type="text" placeholder="Available Equipment (or type 'none')"
-                        class="w-full p-2 border rounded mb-2" />
-
-                    <button onclick="generateWorkout()"
-                        class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-                        Generate Workout with AI
-                    </button>
-                    <div id="aiLoading" class="text-sm text-gray-500 hidden">⏳ Generating workout...</div>
-                    <button onclick="loadWorkoutHistory()" class="text-blue-600 underline text-sm mt-2">View Past
-                        Workouts</button>
-                </div>
             </div>
             <div id="profile" class="tab-content hidden p-4 space-y-4">
                 <h2 class="text-xl font-bold">Your Profile</h2>
@@ -328,6 +306,75 @@
                     Save Changes
                 </button>
             </div>
+            <div id="more" class="tab-content hidden p-4 space-y-6">
+                <!-- Profile Picture Placeholder -->
+                <div class="flex flex-col items-center space-y-1">
+                    <div class="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center text-2xl">
+                        👤
+                    </div>
+                    <div id="moreEmail" class="text-sm text-gray-600">Loading...</div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="space-y-2">
+                    <button onclick="openMyRecipes()"
+                        class="w-full p-3 text-left bg-white shadow rounded hover:bg-gray-50">📖 My Recipes</button>
+                    <button onclick="openMyExercises()"
+                        class="w-full p-3 text-left bg-white shadow rounded hover:bg-gray-50">🏋️ My Exercises</button>
+                    <button onclick="openProfile()"
+                        class="w-full p-3 text-left bg-white shadow rounded hover:bg-gray-50">👤 My Profile</button>
+                    <button onclick="openSettings()"
+                        class="w-full p-3 text-left bg-white shadow rounded hover:bg-gray-50">⚙️ Settings</button>
+                </div>
+            </div>
+            <div id="myRecipes" class="tab-content hidden p-4 flex flex-col space-y-4 h-full">
+                <h2 class="text-xl font-bold">AI Recipe Generator</h2>
+
+                <input id="recipeQuery" type="text" placeholder="e.g. High-protein lunch under 500 cal"
+                    class="w-full p-2 border rounded" />
+
+                <button onclick="generateRecipe()"
+                    class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
+                    Generate Recipe
+                </button>
+
+                <div id="recipeLoading" class="text-sm text-gray-500 hidden">⏳ Generating recipe...</div>
+
+                <!-- Scrollable Recipe List -->
+                <div id="recipeList" class="overflow-y-auto flex-grow space-y-4 pt-4"></div>
+            </div>
+            <div id="myExercises" class="tab-content hidden p-4 flex flex-col space-y-4 h-full">
+                <h2 class="text-xl font-bold">AI Workout Generator</h2>
+
+                <select id="workoutType" class="w-full p-2 border rounded">
+                    <option value="Cardio">Cardio</option>
+                    <option value="Strength">Strength</option>
+                    <option value="Flexibility">Flexibility</option>
+                    <option value="HIIT">HIIT</option>
+                </select>
+
+                <select id="workoutLocation" class="w-full p-2 border rounded">
+                    <option value="Home">Home</option>
+                    <option value="Gym">Gym</option>
+                    <option value="Park">Park</option>
+                    <option value="Outside">Outside</option>
+                </select>
+
+                <input id="workoutEquipment" type="text" placeholder="Available Equipment (e.g. dumbbells, none)"
+                    class="w-full p-2 border rounded" />
+                <input id="workoutDuration" type="number" placeholder="Workout Duration (minutes)"
+                    class="w-full p-2 border rounded" />
+
+                <button onclick="generateWorkout()"
+                    class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                    Generate Workout
+                </button>
+
+                <div id="aiLoading" class="text-sm text-gray-500 hidden">⏳ Generating workout...</div>
+
+                <!-- Scrollable Workout List -->
+                <div id="workoutList" class="overflow-y-auto flex-grow pt-4 space-y-4"></div>
+            </div>
         </div>
 
         <!-- Bottom Navbar -->
@@ -348,9 +395,9 @@
                 class="tab-btn flex flex-col items-center text-gray-500 hover:text-blue-500 transition-all">
                 <span class="text-2xl">🤖</span><span class="text-xs mt-1">AI</span>
             </button>
-            <button data-tab="profile"
+            <button data-tab="more"
                 class="tab-btn flex flex-col items-center text-gray-500 hover:text-blue-500 transition-all">
-                <span class="text-2xl">👤</span><span class="text-xs mt-1">Profile</span>
+                <span class="text-2xl">•••</span><span class="text-xs mt-1">More</span>
             </button>
         </nav>
 
@@ -460,12 +507,16 @@
     </div>
 
     <div id="weightModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-        <div class="bg-white p-6 rounded-xl w-80 shadow-lg">
-            <h3 class="text-lg font-bold mb-4">Log Your Weight</h3>
-            <input id="weightInput" type="number" placeholder="Weight (lbs)" class="w-full p-2 border rounded mb-4" />
-            <div class="flex justify-between">
-                <button onclick="closeWeightModal()" class="text-gray-500 text-sm">Cancel</button>
-                <button onclick="saveWeight()" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+        <div class="bg-white p-6 rounded-xl w-80 shadow-lg max-h-[90vh] overflow-y-auto">
+            <h3 class="text-lg font-bold mb-4">Weight History</h3>
+            <input id="weightInput" type="number" placeholder="New weight (lbs)"
+                class="w-full p-2 border rounded mb-2" />
+            <button onclick="saveWeight()" class="w-full bg-blue-600 text-white py-2 rounded mb-4">Add</button>
+
+            <ul id="weightList" class="space-y-2 text-sm text-gray-800"></ul>
+
+            <div class="text-right mt-4">
+                <button onclick="closeWeightModal()" class="text-gray-500 text-sm">Close</button>
             </div>
         </div>
     </div>

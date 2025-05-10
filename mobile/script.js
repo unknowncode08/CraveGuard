@@ -78,9 +78,50 @@ function enterApp(userData, name = "User") {
     loadStepsTrend();
 }
 
-function openWeightModal() {
+async function openWeightModal() {
     document.getElementById("weightModal").classList.remove("hidden");
     document.getElementById("weightInput").value = "";
+
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const listEl = document.getElementById("weightList");
+    listEl.innerHTML = "";
+
+    const snapshot = await db.collection("users").doc(user.uid).collection("dailyStats").get();
+
+    const weights = [];
+    snapshot.forEach(doc => {
+        const d = doc.id;
+        const entry = doc.data();
+        if (entry.weight) {
+            weights.push({ date: d, weight: entry.weight });
+        }
+    });
+
+    weights.sort((a, b) => b.date.localeCompare(a.date)); // recent first
+
+    for (const w of weights) {
+        const li = document.createElement("li");
+        li.className = "flex justify-between items-center border-b pb-1";
+        li.innerHTML = `
+        <span>${w.date} • <strong>${w.weight} lbs</strong></span>
+        <button onclick="deleteWeight('${w.date}')" class="text-xs text-red-500 underline">Delete</button>
+      `;
+        listEl.appendChild(li);
+    }
+}
+
+async function deleteWeight(date) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    await db.collection("users").doc(user.uid)
+        .collection("dailyStats").doc(date)
+        .update({ weight: firebase.firestore.FieldValue.delete() });
+
+    openWeightModal();
+    loadWeightTrend();
 }
 
 function closeWeightModal() {
@@ -140,6 +181,7 @@ async function loadWeightTrend() {
             scales: { y: { beginAtZero: false } }
         }
     });
+    document.getElementById("weightLoading").style.display = "none";
 }
 
 async function loadStepsTrend() {
@@ -181,6 +223,7 @@ async function loadStepsTrend() {
             scales: { y: { beginAtZero: true } }
         }
     });
+    document.getElementById("stepsLoading").style.display = "none";
 }
 
 function signOut() {
@@ -911,39 +954,34 @@ async function loadWorkoutHistory() {
     const user = auth.currentUser;
     if (!user) return;
 
-    const snapshot = await db.collection("users")
-        .doc(user.uid)
-        .collection("workouts")
-        .orderBy("date", "desc")
-        .get();
+    const snapshot = await db.collection("users").doc(user.uid)
+        .collection("workouts").orderBy("date", "desc").get();
 
     const container = document.getElementById("workoutList");
     container.innerHTML = "";
 
     snapshot.forEach(doc => {
         const w = doc.data();
-        const entry = document.createElement("li");
-        entry.className = "border p-3 rounded shadow-sm";
-
         const parsed = parseWorkout(w.text);
 
+        const entry = document.createElement("div");
+        entry.className = "border p-3 rounded shadow-sm bg-white";
+
         entry.innerHTML = `
-  <div class="text-xs text-gray-500">${w.date} • ${w.time}</div>
-  <div class="font-semibold text-lg mb-1">${parsed.title}</div>
-  <div class="text-sm text-gray-700 mb-1">${parsed.type} • ${parsed.location} • ${parsed.duration} min</div>
-  <div class="text-xs text-gray-500 mb-2">Equipment: ${parsed.equipment}</div>
-  <ul class="text-sm space-y-1 pl-4 list-decimal mb-2">
-    ${parsed.exercises.map(ex => `<li><strong>${ex.name}</strong> — ${ex.sets} × ${ex.reps}<br><span class="text-gray-500">${ex.notes}</span></li>`).join('')}
-  </ul>
-  <div class="text-right">
-    <button onclick="deleteWorkout('${doc.id}')" class="text-red-500 text-xs underline">Delete</button>
-  </div>
-`;
+        <div class="text-xs text-gray-500">${w.date} • ${w.time}</div>
+        <div class="font-semibold text-lg mb-1">${parsed.title}</div>
+        <div class="text-sm text-gray-700 mb-2">${parsed.type} • ${parsed.location} • ${parsed.duration} min</div>
+        <div class="text-xs text-gray-500 mb-2">Equipment: ${parsed.equipment}</div>
+        <ul class="text-sm space-y-1 pl-4 list-decimal">
+          ${parsed.exercises.map(ex => `<li><strong>${ex.name}</strong> — ${ex.sets} × ${ex.reps}<br><span class="text-gray-500">${ex.notes}</span></li>`).join('')}
+        </ul>
+        <div class="text-right mt-2">
+          <button onclick="deleteWorkout('${doc.id}')" class="text-red-500 text-xs underline">Delete</button>
+        </div>
+      `;
 
         container.appendChild(entry);
     });
-
-    document.getElementById("workoutModal").classList.remove("hidden");
 }
 
 function parseWorkout(text) {
@@ -975,6 +1013,34 @@ function parseWorkout(text) {
         type: typeMatch?.[1]?.trim() || "?",
         equipment: equipMatch?.[1]?.trim() || "?",
         exercises
+    };
+}
+
+function parseRecipe(text) {
+    const get = (label) => {
+        const match = text.match(new RegExp(`- ${label}:\\s*(.*)`, 'i'));
+        return match ? match[1] : "";
+    };
+
+    const nutrition = (label) => {
+        const match = text.match(new RegExp(`${label}:\\s*(\\d+\\.?\\d*)`, 'i'));
+        return match ? match[1] : "0";
+    };
+
+    const ingredients = [...text.matchAll(/^- (.+)/gm)].slice(1); // skip title
+    const instructions = [...text.matchAll(/^\d+\.\s+(.*)/gm)];
+
+    return {
+        title: get("Title"),
+        servings: get("Servings"),
+        calories: get("Calories Per Serving"),
+        type: get("Type"),
+        protein: nutrition("Protein"),
+        carbs: nutrition("Carbs"),
+        fat: nutrition("Fat"),
+        fiber: nutrition("Fiber"),
+        ingredients: ingredients.map(m => m[1]),
+        steps: instructions.map(m => m[1])
     };
 }
 
@@ -1130,6 +1196,7 @@ async function loadUserProfile() {
     const user = auth.currentUser;
     if (!user) return;
 
+    document.getElementById("moreEmail").textContent = user.email;
     document.getElementById("userEmail").textContent = user.email;
 
     const doc = await db.collection("users").doc(user.uid).get();
@@ -1143,6 +1210,155 @@ async function loadUserProfile() {
     document.getElementById("profileSex").value = data.sex;
     document.getElementById("profileActivity").value = data.activity;
     document.getElementById("profileGoal").value = data.goal;
+}
+
+function switchTab(tabId) {
+    document.querySelectorAll(".tab-content").forEach(tab => tab.classList.add("hidden"));
+    document.getElementById(tabId).classList.remove("hidden");
+}
+
+function openMyRecipes() {
+    if (typeof switchTab === "function") {
+        loadRecipes();
+        switchTab("myRecipes");
+        document.getElementById("recipeList").scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+        alert("Tab system not initialized yet.");
+    }
+}
+
+function openMyExercises() {
+    if (typeof switchTab === "function") {
+        loadWorkoutHistory();
+        switchTab("myExercises");
+        document.getElementById("workoutList").scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+        alert("Tab system not initialized yet.");
+    }
+}
+
+function openProfile() {
+    if (typeof switchTab === "function") {
+        switchTab("profile");
+    } else {
+        alert("Tab system not initialized yet.");
+    }
+}
+
+function openSettings() {
+    alert("Settings screen coming soon!");
+}
+
+async function generateRecipe() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const query = document.getElementById("recipeQuery").value.trim();
+    if (!query) return;
+
+    document.getElementById("recipeLoading").classList.remove("hidden");
+
+    const prompt = `
+You are a healthy recipe assistant. Create a recipe matching this request:
+"${query}"
+
+Use this strict format:
+
+Recipe:
+- Title: ...
+- Servings: ...
+- Calories Per Serving: ###
+- Type: Breakfast/Lunch/Dinner/Snack
+
+Ingredients:
+- ...
+- ...
+- ...
+
+Instructions:
+1. ...
+2. ...
+
+Nutrition (per serving):
+Protein: ##
+Carbs: ##
+Fat: ##
+Fiber: ##
+
+Only return data in this format. Do not include explanations.
+`;
+
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyC1wlM7BygYivPTog2Qa7tzkmx-aijUPlY", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }]
+        })
+    });
+
+    document.getElementById("recipeLoading").classList.add("hidden");
+
+    const result = await response.json();
+    const text = result?.candidates?.[0]?.content?.parts?.[0]?.text || "No recipe generated.";
+
+    await db.collection("users").doc(user.uid)
+        .collection("recipes").add({
+            query,
+            text,
+            timestamp: new Date().toISOString()
+        });
+
+    loadRecipes(); // show updated list
+}
+
+async function loadRecipes() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const snapshot = await db.collection("users").doc(user.uid)
+        .collection("recipes").orderBy("timestamp", "desc").get();
+
+    const list = document.getElementById("recipeList");
+    list.innerHTML = "";
+
+    snapshot.forEach(doc => {
+        const r = doc.data();
+        const parsed = parseRecipe(r.text);
+        const div = document.createElement("div");
+        div.className = "border p-3 rounded shadow-sm bg-white";
+
+        div.innerHTML = `
+        <div class="text-xs text-gray-500 mb-1">${new Date(r.timestamp).toLocaleString()}</div>
+        <h4 class="font-semibold">${parsed.title}</h4>
+        <div class="text-sm text-gray-600 mb-2">${parsed.type} • ${parsed.servings} servings • ${parsed.calories} kcal</div>
+  
+        <div class="mb-2">
+          <strong>Ingredients:</strong>
+          <ul class="list-disc ml-4 text-sm">${parsed.ingredients.map(i => `<li>${i}</li>`).join("")}</ul>
+        </div>
+  
+        <div class="mb-2">
+          <strong>Instructions:</strong>
+          <ol class="list-decimal ml-4 text-sm">${parsed.steps.map(s => `<li>${s}</li>`).join("")}</ol>
+        </div>
+  
+        <div class="text-sm text-gray-700">
+          <strong>Nutrition:</strong> ${parsed.protein}g protein • ${parsed.carbs}g carbs • ${parsed.fat}g fat • ${parsed.fiber}g fiber
+        </div>
+  
+        <div class="text-right mt-2">
+          <button onclick="deleteRecipe('${doc.id}')" class="text-xs text-red-500 underline">Delete</button>
+        </div>
+      `;
+
+        list.appendChild(div);
+    });
+}
+
+async function deleteRecipe(id) {
+    const user = auth.currentUser;
+    await db.collection("users").doc(user.uid).collection("recipes").doc(id).delete();
+    loadRecipes();
 }
 
 function getLocalDateStringFromDate(dateObj) {
